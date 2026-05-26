@@ -135,10 +135,11 @@ with col_chart2:
             x="total",
             y="reason",
             orientation='h',
+            color="total",
             labels={"total": "Quantidade de Abandonos", "reason": "Motivo"},
-            color_discrete_sequence=["#ff7f0e"] # Cor laranja para alertas
+            color_continuous_scale=["#FFE8CC", "#FFB347", "#FF7F0E", "#E67E22", "#D35400"]
         )
-        fig_failures.update_layout(margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig_failures.update_layout(margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
         st.plotly_chart(fig_failures, width='stretch')
     else:
         st.success("Esta equipe tem um histórico impecável ou dados de abandono não registrados.")

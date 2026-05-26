@@ -131,8 +131,8 @@ with col_kings:
     driver_str = f"{best_driver.iloc[0]['name']} ({best_driver.iloc[0]['wins']} vitórias)" if not best_driver.empty else "Dados indisponíveis"
     team_str = f"{best_team.iloc[0]['name']} ({best_team.iloc[0]['wins']} vitórias)" if not best_team.empty else "Dados indisponíveis"
     
-    st.info(f"**Maior Vencedor (Piloto):**\n\n🏎️ {driver_str}")
-    st.success(f"**Maior Vencedora (Equipe):**\n\n🏭 {team_str}")
+    st.info(f"**Maior Vencedor (Piloto)**\n\n🏎️ {driver_str}")
+    st.success(f"**Maior Vencedora (Equipe)**\n\n🏭 {team_str}")
 
 with col_grid:
     st.markdown("#### A Importância da Classificação")
@@ -158,14 +158,16 @@ with col_grid:
             x="grid_pos",
             y="wins",
             labels={"grid_pos": "Posição no Grid de Largada", "wins": "Total de Vitórias"},
-            color_discrete_sequence=["#1f77b4"]
+            color="wins",
+            color_continuous_scale=["#dbeafe", "#60a5fa", "#1d4ed8"]
         )
         
         fig_grid.update_layout(
             xaxis_type='category', 
             margin=dict(l=0, r=0, t=10, b=0),
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            coloraxis_showscale=False
         )
         st.plotly_chart(fig_grid, width='stretch')
         

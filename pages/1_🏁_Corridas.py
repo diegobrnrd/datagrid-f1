@@ -100,7 +100,7 @@ with tab_resultados:
         width='stretch',
         hide_index=True,
         column_config={
-            "position": st.column_config.TextColumn("Pos", width="small"),
+            "position": st.column_config.TextColumn("Posição", width="small"),
             "driver_name": "Piloto",
             "constructor_name": "Equipe",
             "laps": st.column_config.NumberColumn("Voltas", width="small"),
@@ -181,6 +181,11 @@ with tab_insights:
                     abandonos[["driver_name", "constructor_name", "status"]],
                     width='stretch',
                     hide_index=True
+                    ,column_config={
+                        "driver_name": "Piloto",
+                        "constructor_name": "Equipe",
+                        "status": "Situação"
+                    }
                 )
 
 render_footer()
