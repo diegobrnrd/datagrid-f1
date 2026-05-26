@@ -95,7 +95,11 @@ col_bio, col_m1, col_m2, col_m3, col_m4 = st.columns([2, 1, 1, 1, 1])
 with col_bio:
     st.markdown(f"### {driver_selected_name}")
     num = int(stats["permanent_number"]) if pd.notna(stats["permanent_number"]) else "-"
-    st.caption(f"🌍 {driver_row['nationality']} | 🎂 {idade} anos | 🏎️ Nº {num}")
+    if pd.notna(stats["date_of_birth"]) and pd.notna(stats["permanent_number"]) and int(stats["total_race_starts"]) > 0:
+        st.caption(f"🌍 {driver_row['nationality']} | 🎂 {idade} anos | 🏎️ Nº {num}")
+    else:
+        ano_nascimento = pd.to_datetime(stats["date_of_birth"]).year if pd.notna(stats["date_of_birth"]) else "N/A"
+        st.caption(f"🌍 {driver_row['nationality']} | 🎂 {ano_nascimento}")
 
 with col_m1: st.metric("Títulos Mundiais", int(stats["total_championship_wins"]))
 with col_m2: st.metric("Vitórias", int(stats["total_race_wins"]))
