@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from utils.db import execute_query, get_all_circuits
+from utils.circuit_assets import get_available_circuit_layouts
 from utils.constants import PAISES_TRADUCAO
 from utils.ui import setup_sidebar, render_footer
 
@@ -180,5 +181,33 @@ with col_grid:
             st.caption(f"🏁 **Insight:** Em **{pole_percentage:.1f}%** das vezes, quem largou na Pole Position (1º lugar) venceu a corrida neste circuito.")
     else:
         st.info("Não há dados históricos de grid de largada versus vitórias para este circuito.")
+
+st.divider()
+
+st.subheader("🖼️ Imagem do Circuito")
+
+col_preview_select, col_preview_image = st.columns([1, 2])
+
+with col_preview_select:
+    available_layouts = get_available_circuit_layouts(circuit_row)
+
+    if available_layouts:
+        selected_layout_path = st.selectbox(
+            "Escolha o traçado:",
+            options=available_layouts,
+            format_func=lambda path: f"Traçado {path.stem.rsplit('-', 1)[-1]}",
+        )
+    else:
+        selected_layout_path = None
+
+with col_preview_image:
+    if selected_layout_path:
+        st.image(
+            str(selected_layout_path),
+            caption=f"{selected_circuit_name} - {selected_layout_path.stem.rsplit('-', 1)[-1]}",
+            width=520,
+        )
+    else:
+        st.info("Não foi encontrada imagem SVG para este circuito.")
 
 render_footer()
