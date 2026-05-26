@@ -131,8 +131,8 @@ with col_kings:
     driver_str = f"{best_driver.iloc[0]['name']} ({best_driver.iloc[0]['wins']} vitórias)" if not best_driver.empty else "Dados indisponíveis"
     team_str = f"{best_team.iloc[0]['name']} ({best_team.iloc[0]['wins']} vitórias)" if not best_team.empty else "Dados indisponíveis"
     
-    st.info(f"**Maior Vencedor (Piloto):**\n\n🏎️ {driver_str}")
-    st.success(f"**Maior Vencedora (Equipe):**\n\n🏭 {team_str}")
+    st.info(f"**Maior Vencedor (Piloto)**\n\n🏎️ {driver_str}")
+    st.success(f"**Maior Vencedora (Equipe)**\n\n🏭 {team_str}")
 
 with col_grid:
     st.markdown("#### A Importância da Classificação")
