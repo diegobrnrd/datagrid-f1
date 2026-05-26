@@ -76,11 +76,18 @@ if not driver_standings.empty:
     col_champ1, col_champ2 = st.columns(2)
     
     with col_champ1:
-        st.success(f"**Mundial de Pilotos ({selected_season})**\n\n🏆 Campeão: **{driver_champion_name}** ({driver_champion_points:.1f} pts)")
+        # use the champion row determined above (champion_row)
+        if champion_row.iloc[0].get("championship_won") == 1:
+            st.success(f"**Mundial de Pilotos ({selected_season})**\n\n🏆 Campeão: **{driver_champion_name}** ({driver_champion_points:.1f} pts)")
+        else:
+            st.info(f"**Mundial de Pilotos ({selected_season})**\n\n🏁 Líder: **{driver_champion_name}** ({driver_champion_points:.1f} pts)\n\n*Campeonato em andamento*")
         
     with col_champ2:
         if selected_season >= 1958 and not constructor_standings.empty:
-            st.info(f"**Mundial de Construtores ({selected_season})**\n\n🏭 Campeã: **{team_champion_name}** ({team_champion_points:.1f} pts)")
+            if champion_team_row.iloc[0].get("championship_won") == 1:
+                st.success(f"**Mundial de Construtores ({selected_season})**\n\n🏭 Campeã: **{team_champion_name}** ({team_champion_points:.1f} pts)")
+            else:
+                st.info(f"**Mundial de Construtores ({selected_season})**\n\n🏁 Líder: **{team_champion_name}** ({team_champion_points:.1f} pts)\n\n*Campeonato em andamento*")
         elif selected_season < 1958:
             st.warning(f"**Mundial de Construtores ({selected_season})**\n\nO Mundial de Construtores ainda não havia sido criado (iniciou em 1958).")
 
