@@ -129,21 +129,23 @@ with chart_col2:
     st.markdown("#### Top 5 Países Sedes")
     st.caption("Locais que mais receberam Grandes Prêmios na história.")
     
-    fig_donut = px.pie(
+    fig_bar = px.bar(
         df_top_countries, 
-        values="total_races", 
-        names="country",
-        hole=0.5,
-        color_discrete_sequence=px.colors.sequential.Reds_r
+        x="country", 
+        y="total_races",
+        labels={"country": "País", "total_races": "Número de Corridas"},
+            color="total_races",
+            color_continuous_scale=[[0, "#FF6A6A"], [0.5, "#E10600"], [1, "#7A0000"]]
     )
-    fig_donut.update_layout(
+    fig_bar.update_layout(
         margin=dict(l=0, r=0, t=10, b=0),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='#333'),
         plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
+            paper_bgcolor="rgba(0,0,0,0)",
+            coloraxis_showscale=False
     )
-    st.plotly_chart(fig_donut, width='stretch')
+    st.plotly_chart(fig_bar, width='stretch')
 
 st.divider()
 
