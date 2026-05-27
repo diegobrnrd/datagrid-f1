@@ -59,14 +59,14 @@ def load_dashboard_metrics():
         ORDER BY year
     """)
     
-    # Dados para o Gráfico de Países Sede (Top 5)
+    # Dados para o Gráfico de Países Sede (Top 10)
     top_countries = execute_query("""
         SELECT co.name as country, SUM(ci.total_races_held) as total_races 
         FROM circuit ci 
         LEFT JOIN country co ON ci.country_id = co.id 
         GROUP BY co.name 
         ORDER BY total_races DESC 
-        LIMIT 5
+        LIMIT 10
     """)
     
     # Aplicando a tradução aos nomes dos países
@@ -126,7 +126,7 @@ with chart_col1:
     st.plotly_chart(fig_line, width='stretch')
 
 with chart_col2:
-    st.markdown("#### Top 5 Países Sedes")
+    st.markdown("#### Top 10 Países Sedes")
     st.caption("Locais que mais receberam Grandes Prêmios na história.")
     
     fig_bar = px.bar(
