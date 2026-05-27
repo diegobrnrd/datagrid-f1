@@ -193,3 +193,80 @@ def get_constructor_standings(year: int) -> pd.DataFrame:
     ORDER BY scs.position_display_order
     """
     return execute_query(query, (year,))
+
+
+def _build_points_progression(df: pd.DataFrame, entity_column: str) -> pd.DataFrame:
+    """Consolida pontos por corrida em uma série acumulada por participante."""
+    if df.empty:
+        return df
+
+    progression_df = df.copy()
+    progression_df["race_round"] = pd.to_numeric(progression_df["race_round"], errors="coerce").fillna(0).astype(int)
+    progression_df["race_points"] = pd.to_numeric(progression_df["race_points"], errors="coerce").fillna(0.0)
+
+    race_labels = (
+        progression_df[["race_round", "race_name"]]
+        .drop_duplicates(subset=["race_round"])
+        .sort_values("race_round")
+        .set_index("race_round")
+    )
+
+    pivot_df = progression_df.pivot_table(
+        index="race_round",
+        columns=entity_column,
+        values="race_points",
+        aggfunc="sum",
+        fill_value=0,
+    ).sort_index()
+
+    cumulative_df = pivot_df.cumsum().reset_index()
+    cumulative_df = cumulative_df.melt(
+        id_vars="race_round",
+        var_name=entity_column,
+        value_name="cumulative_points",
+    )
+
+    cumulative_df = cumulative_df.merge(race_labels, left_on="race_round", right_index=True, how="left")
+    cumulative_df["race_label"] = cumulative_df["race_round"].apply(lambda round_number: f"Corrida {round_number}")
+
+    return cumulative_df
+
+
+def get_driver_points_progression(year: int) -> pd.DataFrame:
+    """Retorna a evolução acumulada de pontos dos pilotos ao longo da temporada."""
+    query = """
+    SELECT
+        r.round AS race_round,
+        r.official_name AS race_name,
+        d.full_name AS driver_name,
+        SUM(COALESCE(rr.points, 0)) AS race_points
+    FROM race_result rr
+    INNER JOIN race r ON rr.race_id = r.id
+    INNER JOIN driver d ON rr.driver_id = d.id
+    WHERE r.year = ?
+    GROUP BY r.round, r.official_name, rr.driver_id, d.full_name
+    HAVING SUM(COALESCE(rr.points, 0)) > 0
+    ORDER BY r.round, d.full_name
+    """
+    df = execute_query(query, (year,))
+    return _build_points_progression(df, "driver_name")
+
+
+def get_constructor_points_progression(year: int) -> pd.DataFrame:
+    """Retorna a evolução acumulada de pontos das equipes ao longo da temporada."""
+    query = """
+    SELECT
+        r.round AS race_round,
+        r.official_name AS race_name,
+        c.name AS constructor_name,
+        SUM(COALESCE(rr.points, 0)) AS race_points
+    FROM race_result rr
+    INNER JOIN race r ON rr.race_id = r.id
+    INNER JOIN constructor c ON rr.constructor_id = c.id
+    WHERE r.year = ?
+    GROUP BY r.round, r.official_name, rr.constructor_id, c.name
+    HAVING SUM(COALESCE(rr.points, 0)) > 0
+    ORDER BY r.round, c.name
+    """
+    df = execute_query(query, (year,))
+    return _build_points_progression(df, "constructor_name")
