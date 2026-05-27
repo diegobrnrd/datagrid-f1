@@ -82,7 +82,7 @@ kpi_drivers, kpi_constructors, kpi_races, kpi_circuits, df_races_year, df_top_co
 # ==========================================
 st.title("🏎️ DataGrid F1")
 st.markdown("""
-Bem-vindo à plataforma analítica definitiva da Fórmula 1. 
+Boas-vindas à plataforma analítica definitiva da Fórmula 1. 
 Explore mais de sete décadas de dados históricos de engenharia, velocidade e estratégia, desde a primeira corrida em 1950 até os dias atuais.
 """)
 st.divider()
