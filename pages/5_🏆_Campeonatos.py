@@ -1,5 +1,12 @@
 import streamlit as st
-from utils.db import get_seasons, get_driver_standings, get_constructor_standings
+import plotly.express as px
+from utils.db import (
+    get_seasons,
+    get_driver_standings,
+    get_constructor_standings,
+    get_driver_points_progression,
+    get_constructor_points_progression,
+)
 from utils.ui import setup_sidebar, render_footer
 
 # ==========================================
@@ -42,6 +49,10 @@ driver_standings = get_driver_standings(selected_season)
 
 # Busca os dados do campeonato de construtores
 constructor_standings = get_constructor_standings(selected_season)
+
+# Busca a evolução acumulada de pontos por corrida
+driver_progression = get_driver_points_progression(selected_season)
+constructor_progression = get_constructor_points_progression(selected_season)
 
 # ==========================================
 # 4. COROAÇÃO (Destaque dos Campeões)
@@ -135,5 +146,77 @@ with tab_equipes:
                 "championship_won": st.column_config.CheckboxColumn("Campeã Mundial 🏆"),
             },
         )
+
+# ==========================================
+# 6. EVOLUÇÃO DE PONTOS NA TEMPORADA
+# ==========================================
+st.subheader("📈 Evolução da Pontuação na Temporada")
+st.caption("Cada linha mostra a pontuação acumulada corrida a corrida para os pilotos e as equipes que somaram pontos no ano selecionado.")
+
+col_graph_driver, col_graph_constructor = st.columns(2)
+
+with col_graph_driver:
+    st.markdown("#### Pilotos")
+
+    if driver_progression.empty:
+        st.info("Não há pontos acumulados de pilotos para exibir nesta temporada.")
+    else:
+        driver_race_order = driver_progression.sort_values("race_round")["race_label"].drop_duplicates().tolist()
+        fig_driver_progression = px.line(
+            driver_progression,
+            x="race_label",
+            y="cumulative_points",
+            color="driver_name",
+            markers=True,
+            labels={
+                "race_label": "Corrida",
+                "cumulative_points": "Pontos acumulados",
+                "driver_name": "Piloto",
+                "race_name": "Grande Prêmio",
+            },
+            hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
+            category_orders={"race_label": driver_race_order},
+            color_discrete_sequence=px.colors.qualitative.Dark24,
+        )
+        fig_driver_progression.update_layout(
+            margin=dict(l=0, r=0, t=20, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            legend_title_text="Pilotos",
+        )
+        st.plotly_chart(fig_driver_progression, width='stretch')
+
+with col_graph_constructor:
+    st.markdown("#### Construtoras")
+
+    if selected_season < 1958:
+        st.warning("O Mundial de Construtores só existe a partir de 1958.")
+    elif constructor_progression.empty:
+        st.info("Não há pontos acumulados de construtoras para exibir nesta temporada.")
+    else:
+        constructor_race_order = constructor_progression.sort_values("race_round")["race_label"].drop_duplicates().tolist()
+        fig_constructor_progression = px.line(
+            constructor_progression,
+            x="race_label",
+            y="cumulative_points",
+            color="constructor_name",
+            markers=True,
+            labels={
+                "race_label": "Corrida",
+                "cumulative_points": "Pontos acumulados",
+                "constructor_name": "Construtora",
+                "race_name": "Grande Prêmio",
+            },
+            hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
+            category_orders={"race_label": constructor_race_order},
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        fig_constructor_progression.update_layout(
+            margin=dict(l=0, r=0, t=20, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            legend_title_text="Construtoras",
+        )
+        st.plotly_chart(fig_constructor_progression, width='stretch')
 
 render_footer()
