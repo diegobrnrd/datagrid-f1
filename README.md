@@ -6,9 +6,9 @@
 [![Plotly](https://img.shields.io/badge/Plotly-Interactive%20Charts-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/python/)
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-Aplicação desenvolvida em **Streamlit** para explorar, filtrar e visualizar dados históricos da **Fórmula 1** (corridas, pilotos, construtoras, circuitos e campeonatos) de forma simples e interativa.
+Aplicação desenvolvida em **Streamlit** para explorar, filtrar e visualizar dados históricos da **Fórmula 1** (corridas, pilotos, construtoras, circuitos e campeonatos) de forma simples, visual e interativa.
 
-> **Destaques:** dashboard com KPIs, gráficos interativos, páginas temáticas e consultas em banco **SQLite**.
+> **Destaques:** dashboard global com KPIs, gráficos evolutivos, análise detalhada nas páginas temáticas, imagens e mapas interativos, recursos exclusivos como identificação automática de Hat Trick, Grand Chelem e muito mais. Todas as informações vêm de um banco **SQLite** baseado no projeto open-source [F1DB](https://github.com/f1db/f1db).
 
 ---
 
@@ -20,35 +20,59 @@ Aplicação desenvolvida em **Streamlit** para explorar, filtrar e visualizar da
 
 ## 🧭 O que você encontra no app
 
-O **DataGrid F1** é uma aplicação em Streamlit organizada em uma **visão global** e **páginas temáticas** para exploração de dados históricos da Fórmula 1:
+O **DataGrid F1** é organizado em páginas temáticas para uma imersão visual e analítica nos dados históricos da F1:
 
-- **🏠 Visão Global (Dashboard)**  
-  KPIs do banco (quantidade de pilotos, equipes, GPs e circuitos), além de gráficos com a **evolução do calendário** (corridas por temporada) e **Top 5 países sede** de Grandes Prêmios.
+- **🏠 Visão Global (Dashboard)**
+  - KPIs do banco: quantidade total de **pilotos**, **equipes**, **GPs** e **circuitos**.
+  - Gráfico evolutivo: **Corridas por temporada** desde 1950.
+  - **Top 10 países-sede** de GPs — com gráfico de barras mostrando os países que mais receberam corridas.
 
-- **🏁 Corridas (Explorador de GPs)**  
-  Filtros em cascata por **temporada** e **etapa**, com:
-  - **Resultado oficial** (posição final, equipe, voltas, tempo/gap, pontos e situação)  
-  - **Grid de largada**  
-  - **Insights da corrida**: pole position, volta mais rápida, **taxa de confiabilidade** (concluíram vs abandonaram) e lista de **motivos de abandono**
+- **🏁 Corridas (Explorador de GPs)**
+  - **Filtros em cascata** para selecionar temporada e etapa.
+  - **Resultados oficiais**: posição, pilotos, equipes, voltas, tempo/gap, pontos e situação.
+  - **Grid de largada**.
+  - **Insights da corrida** em destaque:
+    - Pole Position.
+    - Vencedor.
+    - Volta mais rápida.
+    - **Hat Trick** *(pole + vitória + volta mais rápida, aparece se ocorreu)*.
+    - **Grand Chelem** *(pole, vitória, volta mais rápida & liderou todas voltas — aparece se ocorreu)*.
+  - **Gráfico de confiabilidade** (concluíram vs abandonaram) e motivos dos abandonos.
 
-- **🧑‍🚀 Pilotos (Central Analítica)**  
-  Busca por piloto e painel com métricas de carreira (títulos, vitórias, pódios, poles), mais visualizações:
-  - **Funil de conversão** (largadas → pódios → vitórias)  
-  - **Vitórias por equipe**  
-  - **Radar de desempenho** com taxas percentuais (vitória/pódio/pole)
+- **🧑‍🚀 Pilotos (Central Analítica)**
+  - Busca rápida por piloto.
+  - Painel com os principais indicadores de carreira:
+    - Títulos.
+    - Vitórias.
+    - Pódios.
+    - Poles.
+    - Idade / nacionalidade.
+  - Visualizações exclusivas:
+    - **Funil de conversão** (largadas → pódios → vitórias).
+    - **Vitórias por equipe** (barras).
+    - **Radar de desempenho**: taxas percentuais de vitória/pódio/pole no total de largadas.
 
-- **🏭 Construtoras (Domínio da Engenharia)**  
-  Ranking histórico (top 50) e relatório por equipe com:
-  - Top pilotos por vitórias na equipe (Top 5)  
-  - **Top 10 motivos de abandono** (histórico de falhas)
+- **🏭 Construtoras (Domínio da Engenharia)**
+  - Ranking histórico das equipes (top 50 por vitórias), com país, títulos e pódios.
+  - Relatório detalhado por equipe:
+    - Top 5 pilotos por vitórias naquela equipe.
+    - Top 10 motivos de abandono (falhas históricas).
 
-- **🗺️ Circuitos (Geografia e Estatísticas de Pista)**  
-  Mapa interativo com todos os circuitos (quando há latitude/longitude), ficha técnica do circuito e análises:
-  - “Reis da pista” (piloto/equipe com mais vitórias no circuito)  
-  - Relação entre **posição de largada** e **vitórias** no circuito + insight de % de vitórias saindo da pole
+- **🗺️ Circuitos (Geografia e Estatísticas de Pista)**
+  - Mapa interativo mostrando todos os circuitos, países e corridas sediadas.
+  - Ficha técnica do circuito (localização, extensão, curvas, corridas).
+  - Análises avançadas:
+    - “Reis da pista” (piloto/equipe com mais vitórias no traçado).
+    - **Relação entre grid de largada e vitória** — gráfico mostra de onde mais se vence naquela pista.
+    - Insight (%) de vitórias partindo da pole position.
+  - **Imagem do circuito**, com seleção do traçado desejado (pistas com múltiplos desenhos/traçados permitem escolher e visualizar cada variação).
 
-- **🏆 Campeonatos (Classificação Final)**  
-  Seleção de temporada e tabelas finais do **Mundial de Pilotos** e **Mundial de Construtores** (com aviso para temporadas anteriores a 1958).
+- **🏆 Campeonatos (Classificação Final por temporada)**
+  - Seleção da temporada desejada.
+  - **Tabelas finais** do Mundial de Pilotos e Mundial de Construtores (alerta e tratamento especial para anos antes de 1958, quando ainda não havia campeonato de equipes).
+  - **Destaque visual para os campeões** do ano.
+  - **Dois gráficos de evolução da pontuação**: um mostra a evolução corrida a corrida dos pontos acumulados por piloto, outro faz o mesmo para as construtoras.
+
 ---
 
 ## 🛠️ Stack e ferramentas
@@ -57,7 +81,7 @@ O **DataGrid F1** é uma aplicação em Streamlit organizada em uma **visão glo
 - **Streamlit** (interface e deploy)
 - **Pandas** (manipulação e transformação de dados)
 - **Plotly** (visualizações interativas)
-- **SQLite** (camada de dados local)
+- **SQLite** (camada local de dados/repositório)
 
 ---
 
@@ -97,7 +121,7 @@ streamlit run 🏠DataGrid_F1.py
 ## 🗃️ Fonte de dados / Créditos
 
 - O projeto utiliza um banco **SQLite** (`f1db.db`) na raiz do repositório.
-- Crédito da base: [**F1DB**](https://github.com/f1db/f1db) (licença **CC BY 4.0**), conforme exibido no app.
+- Créditos da base de dados: [**F1DB**](https://github.com/f1db/f1db) (licença **CC BY 4.0**), conforme exibido no app.
 
 ---
 
