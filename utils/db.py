@@ -143,6 +143,7 @@ def get_race_results(race_id: int) -> pd.DataFrame:
     query = """
     SELECT
         rr.position_text AS position,
+        rr.position_number AS position_number,
         rr.grid_position_text AS grid,
         d.full_name AS driver_name,
         c.name AS constructor_name,
@@ -150,7 +151,9 @@ def get_race_results(race_id: int) -> pd.DataFrame:
         rr.time,
         rr.reason_retired AS status,
         rr.points,
-        rr.fastest_lap
+        rr.pole_position,
+        rr.fastest_lap,
+        rr.grand_slam
     FROM race_result rr
     LEFT JOIN driver d ON rr.driver_id = d.id
     LEFT JOIN constructor c ON rr.constructor_id = c.id
