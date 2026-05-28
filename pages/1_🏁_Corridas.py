@@ -134,18 +134,35 @@ with tab_insights:
     
     with col_destaques:
         st.subheader("Destaques")
-        
-        # Encontra o Pole Position (grid = 1)
-        pole_row = results[results["grid"] == "1"]
-        pole_name = pole_row.iloc[0]["driver_name"] if not pole_row.empty else "Desconhecido"
-        
-        # Encontra a Volta Mais Rápida (fastest_lap == 1/True)
-        # O F1DB armazena isso como 1 ou 0
-        fastest_row = results[results["fastest_lap"] == 1]
-        fastest_name = fastest_row.iloc[0]["driver_name"] if not fastest_row.empty else "Desconhecido"
-        
-        st.info(f"**Pole Position:**\n\n🥇 {pole_name}")
-        st.success(f"**Volta Mais Rápida:**\n\n⏱️ {fastest_name}")
+
+        if results.empty:
+            st.info("Não há destaques disponíveis para esta corrida.")
+        else:
+            pole_row = results[results["pole_position"] == 1]
+            pole_name = pole_row.iloc[0]["driver_name"] if not pole_row.empty else "Desconhecido"
+
+            fastest_row = results[results["fastest_lap"] == 1]
+            fastest_name = fastest_row.iloc[0]["driver_name"] if not fastest_row.empty else "Desconhecido"
+
+            winner_row = results.iloc[0]
+            winner_name = winner_row["driver_name"]
+            winner_team = winner_row["constructor_name"]
+
+            hat_trick_row = results[(results["pole_position"] == 1) & (results["fastest_lap"] == 1) & (results["position_number"] == 1)]
+            hat_trick_name = hat_trick_row.iloc[0]["driver_name"] if not hat_trick_row.empty else None
+
+            grand_chelem_row = results[results["grand_slam"] == 1]
+            grand_chelem_name = grand_chelem_row.iloc[0]["driver_name"] if not grand_chelem_row.empty else None
+
+            st.success(f"**Pole Position:**\n\n🥇 {pole_name}")
+            st.success(f"**Vencedor:**\n\n🏆 {winner_name}\n\n{winner_team}")
+            st.success(f"**Volta Mais Rápida:**\n\n⏱️ {fastest_name}")
+
+            if hat_trick_name:
+                st.success(f"**Hat Trick:**\n\n✨ {hat_trick_name}\n\nPole + volta mais rápida + vitória")
+
+            if grand_chelem_name:
+                st.success(f"**Grand Chelem:**\n\n👑 {grand_chelem_name}\n\nPole + volta mais rápida + vitória + todas as voltas lideradas")
 
     with col_grafico:
         st.subheader("Taxa de Confiabilidade (Terminaram vs Abandonos)")
