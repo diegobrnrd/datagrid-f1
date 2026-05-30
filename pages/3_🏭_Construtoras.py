@@ -89,7 +89,7 @@ with col_chart1:
         WHERE rr.constructor_id = ? AND rr.position_number = 1
         GROUP BY d.id
         ORDER BY wins DESC
-        LIMIT 5
+        LIMIT 10
     """
     team_drivers_df = execute_query(query_team_drivers, (team_id,))
     
