@@ -6,6 +6,13 @@ from utils.circuit_assets import get_available_circuit_layouts
 from utils.constants import PAISES_TRADUCAO
 from utils.ui import setup_sidebar, render_footer
 
+IMAGE_VARIANTS = {
+    "black": {"label": "Preto", "folder": "black"},
+    "black-outline": {"label": "Preto com contorno", "folder": "black-outline"},
+    "white": {"label": "Branco", "folder": "white"},
+    "white-outline": {"label": "Branco com contorno", "folder": "white-outline"},
+}
+
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
@@ -189,7 +196,14 @@ st.subheader("🖼️ Imagem do Circuito")
 col_preview_select, col_preview_image = st.columns([1, 2])
 
 with col_preview_select:
-    available_layouts = get_available_circuit_layouts(circuit_row)
+    selected_image_variant = st.selectbox(
+        "Escolha o tipo de imagem do circuito:",
+        options=list(IMAGE_VARIANTS.keys()),
+        index=list(IMAGE_VARIANTS.keys()).index("white-outline"),
+        format_func=lambda key: IMAGE_VARIANTS[key]["label"],
+    )
+
+    available_layouts = get_available_circuit_layouts(circuit_row, selected_image_variant)
 
     if available_layouts:
         selected_layout_path = st.selectbox(
@@ -204,7 +218,7 @@ with col_preview_image:
     if selected_layout_path:
         st.image(
             str(selected_layout_path),
-            caption=f"{selected_circuit_name} - {selected_layout_path.stem.rsplit('-', 1)[-1]}",
+            caption=f"{selected_circuit_name} - {IMAGE_VARIANTS[selected_image_variant]['label']} - {selected_layout_path.stem.rsplit('-', 1)[-1]}",
             width=520,
         )
     else:

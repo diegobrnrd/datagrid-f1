@@ -19,10 +19,10 @@ def slugify(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
 
 
-def get_available_circuit_layouts(circuit_row: pd.Series) -> list[Path]:
+def get_available_circuit_layouts(circuit_row: pd.Series, variant_key: str = "white-outline") -> list[Path]:
     circuit_slug = slugify(circuit_row["name"])
     place_slug = slugify(circuit_row["place_name"])
-    variant_folder = ASSETS_CIRCUITS_DIR / "white-outline"
+    variant_folder = ASSETS_CIRCUITS_DIR / variant_key
 
     candidate_slugs = [
         CIRCUIT_ALIASES.get(circuit_slug),
