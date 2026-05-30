@@ -201,6 +201,7 @@ with col_preview_select:
         options=list(IMAGE_VARIANTS.keys()),
         index=list(IMAGE_VARIANTS.keys()).index("white-outline"),
         format_func=lambda key: IMAGE_VARIANTS[key]["label"],
+        key=f"circuit_image_variant_{circuit_id}",
     )
 
     available_layouts = get_available_circuit_layouts(circuit_row, selected_image_variant)
@@ -210,6 +211,7 @@ with col_preview_select:
             "Escolha o traçado:",
             options=available_layouts,
             format_func=lambda path: f"Traçado {path.stem.rsplit('-', 1)[-1]}",
+            key=f"circuit_layout_{circuit_id}_{selected_image_variant}",
         )
     else:
         selected_layout_path = None
