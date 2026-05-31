@@ -8,7 +8,7 @@
 
 Aplicação desenvolvida em **Streamlit** para explorar, filtrar e visualizar dados históricos da **Fórmula 1** (corridas, pilotos, construtoras, circuitos e campeonatos) de forma simples, visual e interativa.
 
-> **Destaques:** dashboard global com KPIs, gráficos evolutivos, análise detalhada nas páginas temáticas, imagens e mapas interativos, recursos exclusivos como identificação automática de Hat Trick, Grand Chelem e muito mais. Todas as informações vêm de um banco **SQLite** baseado no projeto open-source [F1DB](https://github.com/f1db/f1db).
+> **Destaques:** dashboard global com KPIs, gráficos evolutivos, análise detalhada nas páginas temáticas, imagens e mapas interativos, recursos exclusivos como identificação automática de Hat Tricks, Grand Chelem e muito mais. Todas as informações vêm de um banco **SQLite** baseado no projeto open-source [F1DB](https://github.com/f1db/f1db).
 
 ---
 
@@ -40,32 +40,59 @@ O **DataGrid F1** é organizado em páginas temáticas para uma imersão visual 
   - **Gráfico de confiabilidade** (concluíram vs abandonaram) e motivos dos abandonos.
 
 - **🧑‍🚀 Pilotos (Central Analítica)**
-  - Busca rápida por piloto.
-  - Painel com os principais indicadores de carreira:
-    - Títulos.
-    - Vitórias.
-    - Pódios.
-    - Poles.
-    - Idade / nacionalidade.
-  - Visualizações exclusivas:
-    - **Funil de conversão** (largadas → pódios → vitórias).
-    - **Vitórias por equipe** (barras).
-    - **Radar de desempenho**: taxas percentuais de vitória/pódio/pole no total de largadas.
+  - Duas abas temáticas: **Estatísticas Individuais** e **Estatísticas Gerais**.
+  
+  - **Aba: Estatísticas Individuais**
+    - Busca rápida por piloto.
+    - Painel com os principais indicadores de carreira:
+      - Títulos Mundiais.
+      - Vitórias.
+      - Pódios.
+      - Poles.
+      - **Voltas Mais Rápidas**.
+      - **Hat Tricks**.
+      - **Grand Chelems**.
+      - Idade, nacionalidade e número do carro.
+    - Visualizações analíticas iniciais:
+      - **Funil de conversão** (largadas → pódios → vitórias).
+      - **Vitórias por equipe** (gráfico de barras).
+      - **Radar de desempenho**: taxas percentuais de vitória/pódio/pole no total de largadas.
+    - **Evolução Anual de Carreira** com 14 visualizações interativas (7 gráficos de linha + 7 gráficos lollipop):
+      - Evolução e lollipop de **Títulos Mundiais**.
+      - Evolução e lollipop de **Vitórias**.
+      - Evolução e lollipop de **Pódios**.
+      - Evolução e lollipop de **Poles**.
+      - Evolução e lollipop de **Voltas Mais Rápidas**.
+      - Evolução e lollipop de **Hat Tricks**.
+      - Evolução e lollipop de **Grand Chelems**.
+  
+  - **Aba: Estatísticas Gerais**
+    - **8 tabelas de ranking** com posicionamento de todos os pilotos:
+      - Campeonatos de Pilotos.
+      - Vitórias.
+      - Pódios.
+      - Poles.
+      - Voltas Mais Rápidas.
+      - Hat Tricks.
+      - Grand Chelems.
+      - Largadas (corridas disputadas).
 
 - **🏭 Construtoras (Domínio da Engenharia)**
   - Ranking histórico das equipes (top 50 por vitórias), com país, títulos e pódios.
   - Relatório detalhado por equipe:
-    - Top 5 pilotos por vitórias naquela equipe.
-    - Top 10 motivos de abandono (falhas históricas).
+    - **Top 10 pilotos por vitórias** naquela equipe.
+    - **Top 10 motivos de abandono** (falhas históricas do carro).
 
 - **🗺️ Circuitos (Geografia e Estatísticas de Pista)**
   - Mapa interativo mostrando todos os circuitos, países e corridas sediadas.
   - Ficha técnica do circuito (localização, extensão, curvas, corridas).
   - Análises avançadas:
-    - “Reis da pista” (piloto/equipe com mais vitórias no traçado).
+    - "Reis da pista" (piloto/equipe com mais vitórias no traçado).
     - **Relação entre grid de largada e vitória** — gráfico mostra de onde mais se vence naquela pista.
     - Insight (%) de vitórias partindo da pole position.
-  - **Imagem do circuito**, com seleção do traçado desejado (pistas com múltiplos desenhos/traçados permitem escolher e visualizar cada variação).
+  - **Imagem do circuito** com múltiplas variantes de visualização:
+    - Seleção do **tipo de imagem**: Preto, Preto com contorno, Branco, Branco com contorno.
+    - Seleção do **traçado do circuito** (para pistas com múltiplos desenhos/variações históricas).
 
 - **🏆 Campeonatos (Classificação Final por temporada)**
   - Seleção da temporada desejada.
