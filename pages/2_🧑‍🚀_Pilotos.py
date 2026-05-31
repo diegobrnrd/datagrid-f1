@@ -81,6 +81,31 @@ query_wins_by_team = """
 """
 wins_by_team = execute_query(query_wins_by_team, (driver_id,))
 
+# --- INDICADORES ADICIONAIS DE CARREIRA ---
+# Quantidade de voltas mais rápidas
+query_fastest = """
+    SELECT COUNT(*) AS fastest_count
+    FROM race_result
+    WHERE driver_id = ? AND fastest_lap = 1
+"""
+fastest_count = int(execute_query(query_fastest, (driver_id,)).iloc[0]["fastest_count"] or 0)
+
+# Hat tricks (pole + fastest lap + vitória)
+query_hat = """
+    SELECT COUNT(*) AS hat_count
+    FROM race_result
+    WHERE driver_id = ? AND pole_position = 1 AND fastest_lap = 1 AND position_number = 1
+"""
+hat_count = int(execute_query(query_hat, (driver_id,)).iloc[0]["hat_count"] or 0)
+
+# Grand chelems (campo `grand_slam` no banco)
+query_grand = """
+    SELECT COUNT(*) AS grand_count
+    FROM race_result
+    WHERE driver_id = ? AND grand_slam = 1
+"""
+grand_count = int(execute_query(query_grand, (driver_id,)).iloc[0]["grand_count"] or 0)
+
 # ==========================================
 # 4. CARTÃO BIOGRÁFICO E MÉTRICAS DE OURO
 # ==========================================
@@ -90,7 +115,8 @@ if pd.notna(stats["date_of_birth"]):
     dob = pd.to_datetime(stats["date_of_birth"])
     idade = datetime.now().year - dob.year
 
-col_bio, col_m1, col_m2, col_m3, col_m4 = st.columns([2, 1, 1, 1, 1])
+
+col_bio, col_m1, col_m2, col_m3, col_m4, col_m5, col_m6, col_m7 = st.columns([2, 1, 1, 1, 1, 1, 1, 1])
 
 with col_bio:
     st.markdown(f"### {driver_selected_name}")
@@ -104,7 +130,10 @@ with col_bio:
 with col_m1: st.metric("Títulos Mundiais", int(stats["total_championship_wins"]))
 with col_m2: st.metric("Vitórias", int(stats["total_race_wins"]))
 with col_m3: st.metric("Pódios", int(stats["total_podiums"]))
-with col_m4: st.metric("Pole Positions", int(stats["total_pole_positions"]))
+with col_m4: st.metric("Poles", int(stats["total_pole_positions"]))
+with col_m5: st.metric("Voltas Mais Rápidas", int(fastest_count))
+with col_m6: st.metric("Hat Tricks", int(hat_count))
+with col_m7: st.metric("Grand Chelems", int(grand_count))
 
 st.divider()
 
