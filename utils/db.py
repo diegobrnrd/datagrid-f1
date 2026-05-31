@@ -273,3 +273,145 @@ def get_constructor_points_progression(year: int) -> pd.DataFrame:
     """
     df = execute_query(query, (year,))
     return _build_points_progression(df, "constructor_name")
+
+
+def get_driver_career_evolution(driver_id: str) -> pd.DataFrame:
+    """Retorna a evolução anual acumulada dos principais marcos de carreira de um piloto."""
+    query = """
+    WITH years AS (
+        SELECT DISTINCT r.year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+
+        UNION
+
+        SELECT DISTINCT sds.year
+        FROM season_driver_standing sds
+        WHERE sds.driver_id = ?
+    ),
+    titles AS (
+        SELECT
+            sds.year,
+            COUNT(*) AS titles_year
+        FROM season_driver_standing sds
+        WHERE sds.driver_id = ?
+          AND sds.championship_won = 1
+        GROUP BY sds.year
+    ),
+    wins AS (
+        SELECT
+            r.year,
+            COUNT(*) AS wins_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.position_number = 1
+        GROUP BY r.year
+    ),
+    podiums AS (
+        SELECT
+            r.year,
+            COUNT(*) AS podiums_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.position_number IN (1, 2, 3)
+        GROUP BY r.year
+    ),
+    poles AS (
+        SELECT
+            r.year,
+            COUNT(*) AS poles_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.pole_position = 1
+        GROUP BY r.year
+    ),
+    fastest_laps AS (
+        SELECT
+            r.year,
+            COUNT(*) AS fastest_laps_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.fastest_lap = 1
+        GROUP BY r.year
+    ),
+    hat_tricks AS (
+        SELECT
+            r.year,
+            COUNT(*) AS hat_tricks_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.position_number = 1
+          AND rr.pole_position = 1
+          AND rr.fastest_lap = 1
+        GROUP BY r.year
+    ),
+    grand_slems AS (
+        SELECT
+            r.year,
+            COUNT(*) AS grand_slems_year
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        WHERE rr.driver_id = ?
+          AND rr.grand_slam = 1
+        GROUP BY r.year
+    )
+    SELECT
+        y.year,
+        COALESCE(t.titles_year, 0) AS titles_year,
+        COALESCE(w.wins_year, 0) AS wins_year,
+        COALESCE(pod.podiums_year, 0) AS podiums_year,
+        COALESCE(pol.poles_year, 0) AS poles_year,
+        COALESCE(fl.fastest_laps_year, 0) AS fastest_laps_year,
+        COALESCE(ht.hat_tricks_year, 0) AS hat_tricks_year,
+        COALESCE(gs.grand_slems_year, 0) AS grand_slems_year
+    FROM years y
+    LEFT JOIN titles t ON y.year = t.year
+    LEFT JOIN wins w ON y.year = w.year
+    LEFT JOIN podiums pod ON y.year = pod.year
+    LEFT JOIN poles pol ON y.year = pol.year
+    LEFT JOIN fastest_laps fl ON y.year = fl.year
+    LEFT JOIN hat_tricks ht ON y.year = ht.year
+    LEFT JOIN grand_slems gs ON y.year = gs.year
+    ORDER BY y.year
+    """
+
+    df = execute_query(
+        query,
+        (
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+            driver_id,
+        ),
+    )
+
+    if df.empty:
+        return df
+
+    metric_columns = [
+        "titles_year",
+        "wins_year",
+        "podiums_year",
+        "poles_year",
+        "fastest_laps_year",
+        "hat_tricks_year",
+        "grand_slems_year",
+    ]
+
+    for column in metric_columns:
+        df[column] = pd.to_numeric(df[column], errors="coerce").fillna(0).astype(int)
+        cumulative_column = column.replace("_year", "_cumulative")
+        df[cumulative_column] = df[column].cumsum().astype(int)
+
+    return df

@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
-from utils.db import execute_query, get_all_drivers
+from utils.db import execute_query, get_all_drivers, get_driver_career_evolution
 from utils.constants import PAISES_TRADUCAO
 from utils.ui import setup_sidebar, render_footer
 
@@ -106,6 +106,8 @@ query_grand = """
 """
 grand_count = int(execute_query(query_grand, (driver_id,)).iloc[0]["grand_count"] or 0)
 
+career_evolution_df = get_driver_career_evolution(driver_id)
+
 # ==========================================
 # 4. CARTÃO BIOGRÁFICO E MÉTRICAS DE OURO
 # ==========================================
@@ -160,7 +162,7 @@ with col_chart1:
             marker={"color": ["#1f77b4", "#ff7f0e", "#E10600"]}
         ))
         fig_funnel.update_layout(margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_funnel, width='stretch')
+        st.plotly_chart(fig_funnel, width='stretch', key=f"funnel_{driver_id}")
     else:
         st.info("Este piloto não possui largadas registradas.")
 
@@ -179,7 +181,7 @@ with col_chart2:
             color_discrete_sequence=px.colors.qualitative.Pastel
         )
         fig_bar.update_layout(showlegend=False, margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_bar, width='stretch')
+        st.plotly_chart(fig_bar, width='stretch', key=f"wins_by_team_{driver_id}")
     else:
         st.info("Este piloto não possui vitórias registradas.")
 
@@ -209,8 +211,124 @@ with col_chart3:
             paper_bgcolor="rgba(0,0,0,0)", 
             plot_bgcolor="rgba(0,0,0,0)"
         )
-        st.plotly_chart(fig_radar, width='stretch')
+        st.plotly_chart(fig_radar, width='stretch', key=f"radar_{driver_id}")
     else:
         st.info("Dados insuficientes para gerar o radar.")
+
+st.divider()
+
+# ==========================================
+# 6. EVOLUÇÃO ANUAL DA CARREIRA (GRÁFICOS)
+# ==========================================
+st.subheader("📈 Evolução Anual de Carreira")
+
+if career_evolution_df.empty:
+    st.info("Não há dados suficientes para montar os gráficos de evolução deste piloto.")
+else:
+    # Incluir tanto o valor do ano quanto o acumulado para tooltips
+    plot_df = career_evolution_df[[
+        "year",
+        "titles_year",
+        "titles_cumulative",
+        "wins_year",
+        "wins_cumulative",
+        "podiums_year",
+        "podiums_cumulative",
+        "poles_year",
+        "poles_cumulative",
+        "fastest_laps_year",
+        "fastest_laps_cumulative",
+        "hat_tricks_year",
+        "hat_tricks_cumulative",
+        "grand_slems_year",
+        "grand_slems_cumulative",
+    ]].copy()
+
+    plot_df["year"] = pd.to_numeric(plot_df["year"], errors="coerce").astype(int)
+
+    def render_evolution_chart(title: str, cum_col: str, year_col: str, y_label: str, color: str):
+        fig = px.line(
+            plot_df,
+            x="year",
+            y=cum_col,
+            markers=True,
+            labels={"year": "Ano", cum_col: y_label},
+            custom_data=[plot_df[year_col]],
+        )
+        hover_tmpl = f"Ano: %{{x}}<br>{y_label} (acumulado): %{{y}}<br>{y_label} no ano: %{{customdata[0]}}"
+        fig.update_traces(line_color=color, hovertemplate=hover_tmpl)
+        fig.update_layout(
+            title=title,
+            margin=dict(l=0, r=0, t=50, b=0),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(dtick=1),
+        )
+        fig.update_yaxes(rangemode='tozero')
+        st.plotly_chart(fig, width='stretch', key=f"line_{cum_col}_{driver_id}")
+
+    # Para cada gráfico de linha, renderizamos à direita um gráfico de barras com o valor por ano
+    def render_lollipop(title: str, year_col: str, y_label: str, color: str):
+        fig = go.Figure()
+        years = plot_df['year'].tolist()
+        vals = plot_df[year_col].tolist()
+        # linhas verticais
+        for x, y in zip(years, vals):
+            fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=y, line=dict(color=color, width=2))
+        # marcadores no topo
+        fig.add_trace(go.Scatter(
+            x=years,
+            y=vals,
+            mode='markers',
+            marker=dict(color=color, size=10),
+            hovertemplate=f'Ano: %{{x}}<br>{y_label}: %{{y}}'
+        ))
+        fig.update_layout(title=title, margin=dict(l=0, r=0, t=40, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig.update_xaxes(dtick=1)
+        fig.update_yaxes(rangemode='tozero')
+        st.plotly_chart(fig, width='stretch', key=f"lollipop_{year_col}_{driver_id}")
+
+    # Re-render pairings com barras à direita
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Títulos Mundiais", "titles_cumulative", "titles_year", "Títulos", "#E10600")
+    with cols[1]:
+        render_lollipop("Títulos por Ano", "titles_year", "Títulos", "#E10600")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Vitórias", "wins_cumulative", "wins_year", "Vitórias", "#FF7F0E")
+    with cols[1]:
+        render_lollipop("Vitórias por Ano", "wins_year", "Vitórias", "#FF7F0E")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Pódios", "podiums_cumulative", "podiums_year", "Pódios", "#1F77B4")
+    with cols[1]:
+        render_lollipop("Pódios por Ano", "podiums_year", "Pódios", "#1F77B4")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Poles", "poles_cumulative", "poles_year", "Poles", "#2CA02C")
+    with cols[1]:
+        render_lollipop("Poles por Ano", "poles_year", "Poles", "#2CA02C")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Voltas Mais Rápidas", "fastest_laps_cumulative", "fastest_laps_year", "Voltas Mais Rápidas", "#17BECF")
+    with cols[1]:
+        render_lollipop("Voltas Mais Rápidas por Ano", "fastest_laps_year", "Voltas Mais Rápidas", "#17BECF")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Hat Tricks", "hat_tricks_cumulative", "hat_tricks_year", "Hat Tricks", "#9467BD")
+    with cols[1]:
+        render_lollipop("Hat Tricks por Ano", "hat_tricks_year", "Hat Tricks", "#9467BD")
+
+    cols = st.columns([3, 2])
+    with cols[0]:
+        render_evolution_chart("Evolução de Grand Chelems", "grand_slems_cumulative", "grand_slems_year", "Grand Chelems", "#8C564B")
+    with cols[1]:
+        render_lollipop("Grand Chelems por Ano", "grand_slems_year", "Grand Chelems", "#8C564B")
 
 render_footer()
