@@ -100,11 +100,31 @@ def get_all_constructors() -> pd.DataFrame:
         con.name,
         con.full_name,
         c.name AS country,
+        COALESCE(driver_titles.total_driver_championship_wins, 0) AS total_driver_championship_wins,
         con.total_race_wins,
         con.total_podiums,
-        con.total_championship_wins
+        con.total_championship_wins,
+        COALESCE(poles.total_pole_positions, 0) AS total_pole_positions
     FROM constructor con
     LEFT JOIN country c ON con.country_id = c.id
+    LEFT JOIN (
+        SELECT
+            rr.constructor_id,
+            COUNT(DISTINCT sds.year) AS total_driver_championship_wins
+        FROM race_result rr
+        INNER JOIN season_driver_standing sds
+            ON rr.driver_id = sds.driver_id
+           AND sds.championship_won = 1
+        GROUP BY rr.constructor_id
+    ) AS driver_titles ON driver_titles.constructor_id = con.id
+    LEFT JOIN (
+        SELECT
+            constructor_id,
+            COUNT(*) AS total_pole_positions
+        FROM race_result
+        WHERE pole_position = 1
+        GROUP BY constructor_id
+    ) AS poles ON poles.constructor_id = con.id
     ORDER BY con.total_race_wins DESC, con.name ASC
     """
     return execute_query(query)
