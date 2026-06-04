@@ -165,7 +165,8 @@ with tab_insights:
                 st.success(f"**Grand Chelem:**\n\n👑 {grand_chelem_name}\n\nPole + volta mais rápida + vitória + todas as voltas lideradas")
 
     with col_grafico:
-        st.subheader("Taxa de Confiabilidade (Terminaram vs Abandonos)")
+        st.subheader("⚙️ Taxa de Confiabilidade")
+        st.caption("Proporção de pilotos que concluíram a prova versus abandonos e não largadas.")
         
         # Lógica de confiabilidade baseada na coluna `status`
         def classify_status(status_text):

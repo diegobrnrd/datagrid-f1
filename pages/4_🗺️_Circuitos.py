@@ -49,6 +49,7 @@ current_map_df = circuits_df[circuits_df["name"].isin(current_circuit_names)].dr
 # 3. FUNÇÕES AUXILIARES DE RENDERIZAÇÃO
 # ==========================================
 def render_map(df: pd.DataFrame, key: str):
+    """Renderiza um mapa interativo com os circuitos."""
     fig_map = px.scatter_map(
         df, 
         lat="latitude", 
@@ -80,6 +81,7 @@ def render_map(df: pd.DataFrame, key: str):
     st.plotly_chart(fig_map, width='stretch', key=key)
 
 def render_circuit_analysis(selected_circuit_name: str, key_prefix: str):
+    """Gera o painel de raio-X do circuito com informações e recordes históricos."""
     circuit_row = circuits_df[circuits_df["name"] == selected_circuit_name].iloc[0]
     circuit_id = circuit_row["id"]
 
@@ -140,7 +142,7 @@ def render_circuit_analysis(selected_circuit_name: str, key_prefix: str):
         st.warning(f"**⏱️ Mais Poles**\n\n🏎️ **Piloto:** {driver_poles_str}\n\n🏭 **Equipe:** {team_poles_str}")
 
     with col_grid:
-        st.markdown("#### A Importância da Classificação")
+        st.markdown("#### 🚦 A Importância da Classificação")
         st.caption("Relação entre a posição de largada e as vitórias conquistadas nesta pista.")
         
         q_grid = """
@@ -248,7 +250,7 @@ with tab_global:
     
     st.divider()
     
-    st.subheader(" Raio-X do Traçado")
+    st.subheader("🔍 Raio-X do Traçado")
     selected_circuit_name_global = st.selectbox(
         "Selecione um circuito para analisar:", 
         circuits_df["name"],

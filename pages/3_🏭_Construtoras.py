@@ -42,7 +42,7 @@ def load_constructors():
 
 constructors_df = load_constructors()
 
-st.subheader("Ranking Histórico Global")
+st.subheader("🌍 Ranking Histórico Global")
 ranking_columns = [
     "name",
     "country",
@@ -102,6 +102,7 @@ st.markdown("### Painel de Desempenho e Histórico")
 
 # Função auxiliar para gerar os gráficos de lollipop
 def render_team_lollipop(df: pd.DataFrame, category_col: str, value_col: str, category_label: str, value_label: str, color: str, key: str):
+    """Renderiza um gráfico do tipo lollipop para visualizar a distribuição de métricas por ano."""
     fig = go.Figure()
     categories = df[category_col].tolist()
     vals = df[value_col].tolist()
@@ -123,6 +124,7 @@ def render_team_lollipop(df: pd.DataFrame, category_col: str, value_col: str, ca
 
 # Função auxiliar para gerar os gráficos de barra (Top 10)
 def render_team_bar(df: pd.DataFrame, category_col: str, value_col: str, category_label: str, value_label: str, color_scale: list, key: str, orientation: str = 'v'):
+    """Renderiza um gráfico de barras (horizontal ou vertical) padronizado."""
     if orientation == 'v':
         fig = px.bar(df, x=category_col, y=value_col, labels={category_col: category_label, value_col: value_label}, color=value_col, color_continuous_scale=color_scale)
     else:
@@ -140,6 +142,7 @@ def render_team_bar(df: pd.DataFrame, category_col: str, value_col: str, categor
 
 # Função auxiliar para gerar os gráficos de evolução
 def render_team_evolution(df: pd.DataFrame, x_col: str, y_col: str, y_label: str, color: str, key: str, custom_hover_col: str = None):
+    """Renderiza um gráfico de linha interativo exibindo a evolução temporal de uma métrica da equipe."""
     if df.empty or df[y_col].max() == 0:
         st.info(f"Sem registros de {y_label.lower()} para esta equipe.")
         return
@@ -248,7 +251,7 @@ if not evo_df.empty:
 # --- 1. VITÓRIAS ---
 r1_col1, r1_col2 = st.columns(2)
 with r1_col1:
-    st.markdown("#### Top 10: Vitórias")
+    st.markdown("#### 🥇 Top 10: Vitórias")
     st.caption("Pilotos que mais trouxeram o lugar mais alto do pódio para a equipe.")
     query_wins = """
         SELECT d.last_name as driver, COUNT(*) as value
@@ -266,7 +269,7 @@ with r1_col1:
         st.info("Nenhuma vitória registrada para esta equipe.")
 
 with r1_col2:
-    st.markdown("#### Vitórias por Temporada")
+    st.markdown("#### 📈 Vitórias por Temporada")
     st.caption("Total de vitórias conquistadas em cada ano de participação.")
     wins_per_year_df = evo_df[evo_df["wins"] > 0].copy()
     if not wins_per_year_df.empty:
@@ -279,7 +282,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 2. POLES ---
 r2_col1, r2_col2 = st.columns(2)
 with r2_col1:
-    st.markdown("#### Top 10: Pole Positions")
+    st.markdown("#### ⏱️ Top 10: Pole Positions")
     st.caption("Pilotos que mais vezes largaram na primeira posição pela equipe.")
     query_poles = """
         SELECT d.last_name as driver, COUNT(*) as value
@@ -297,7 +300,7 @@ with r2_col1:
         st.info("Nenhuma Pole Position registrada para esta equipe.")
 
 with r2_col2:
-    st.markdown("#### Poles por Temporada")
+    st.markdown("#### 📈 Poles por Temporada")
     st.caption("Total de poles conquistadas em cada ano de participação.")
     poles_per_year_df = evo_df[evo_df["poles"] > 0].copy()
     if not poles_per_year_df.empty:
@@ -310,7 +313,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 3. PÓDIOS ---
 r3_col1, r3_col2 = st.columns(2)
 with r3_col1:
-    st.markdown("#### Top 10: Pódios")
+    st.markdown("#### 🍾 Top 10: Pódios")
     st.caption("Pilotos com maior presença no Top 3 vestindo as cores da escuderia.")
     query_podiums = """
         SELECT d.last_name as driver, COUNT(*) as value
@@ -328,7 +331,7 @@ with r3_col1:
         st.info("Nenhum pódio registrado para esta equipe.")
 
 with r3_col2:
-    st.markdown("#### Pódios por Temporada")
+    st.markdown("#### 📈 Pódios por Temporada")
     st.caption("Total de pódios conquistados ao longo dos anos.")
     podiums_per_year_df = evo_df[evo_df["podiums"] > 0].copy()
     if not podiums_per_year_df.empty:
@@ -341,7 +344,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 4. LARGADAS E ABANDONOS ---
 r4_col1, r4_col2 = st.columns(2)
 with r4_col1:
-    st.markdown("#### Top 10: Corridas Disputadas")
+    st.markdown("#### 🏁 Top 10: Corridas Disputadas")
     st.caption("Pilotos mais fiéis em número de largadas oficiais pela equipe.")
     query_starts = """
         SELECT d.last_name as driver, COUNT(*) as value
@@ -360,7 +363,7 @@ with r4_col1:
         st.info("Nenhuma largada oficial registrada para esta equipe.")
 
 with r4_col2:
-    st.markdown("#### Top 10: Motivos de Abandono")
+    st.markdown("#### ⚠️ Top 10: Motivos de Abandono")
     st.caption("Principais falhas mecânicas ou incidentes que tiraram os carros da prova.")
     
     query_failures = """
@@ -384,12 +387,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 5. TÍTULOS ---
 r5_col1, r5_col2 = st.columns(2)
 with r5_col1:
-    st.markdown("#### Evolução de Títulos Mundiais")
+    st.markdown("#### 🏆 Evolução de Títulos Mundiais")
     st.caption("Acúmulo de campeonatos de construtores conquistados ao longo dos anos.")
     render_team_evolution(evo_df, "year", "cum_titles", "Títulos Acumulados", "#9467BD", "evo_titles")
 
 with r5_col2:
-    st.markdown("#### Evolução de Títulos de Pilotos")
+    st.markdown("#### 🧑‍🚀 Evolução de Títulos de Pilotos")
     st.caption("Títulos mundiais de pilotos conquistados com os carros da equipe, acumulados ao longo dos anos.")
     render_team_evolution(evo_df, "year", "cum_driver_titles", "Títulos de Pilotos", "#9467BD", "evo_driver_titles", custom_hover_col="hover_text")
 

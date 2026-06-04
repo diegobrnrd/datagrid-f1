@@ -32,8 +32,6 @@ def execute_query(query: str, params: tuple | None = None) -> pd.DataFrame:
     with get_connection() as conn:
         return pd.read_sql(query, conn, params=params)
 
-import pandas as pd
-
 # ==========================================
 # 1. QUERIES GERAIS E FILTROS
 # ==========================================

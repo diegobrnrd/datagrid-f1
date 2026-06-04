@@ -130,8 +130,8 @@ st.markdown("<br>", unsafe_allow_html=True) # Espaçamento vertical
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown("#### Evolução do Calendário de Corridas")
-    st.caption("Quantidade total de Grandes Prêmios disputados a cada temporada.")
+    st.markdown("#### 📅 Evolução do Calendário de Corridas")
+    st.caption("Evolução histórica da quantidade de Grandes Prêmios disputados a cada temporada.")
     
     fig_line = px.area(
         df_races_year, 
@@ -151,8 +151,8 @@ with chart_col1:
     st.plotly_chart(fig_line, width='stretch')
 
 with chart_col2:
-    st.markdown("#### Top 10 Países-Sede de Corridas")
-    st.caption("Ranking dos países que mais receberam Grandes Prêmios na história.")
+    st.markdown("#### 🌍 Top 10 Países-Sede de Corridas")
+    st.caption("Ranking histórico dos países que mais sediaram Grandes Prêmios na F1.")
     
     fig_bar = px.bar(
         df_top_countries, 
@@ -179,8 +179,8 @@ st.markdown("<br>", unsafe_allow_html=True)
 chart_row2_left, chart_row2_right = st.columns(2)
 
 with chart_row2_left:
-    st.markdown("#### Evolução do Grid de Largada")
-    st.caption("Capacidade máxima de carros competindo no grid a cada temporada.")
+    st.markdown("#### 🚦 Evolução do Grid de Largada")
+    st.caption("Variação da capacidade média/máxima de carros no grid ao longo das temporadas.")
 
     if df_grid_capacity.empty:
         st.info("Não há dados suficientes para calcular a evolução do grid.")
@@ -208,8 +208,8 @@ with chart_row2_left:
         st.plotly_chart(fig_grid, width='stretch')
 
 with chart_row2_right:
-    st.markdown("#### Top 10 Países de Origem de Pilotos")
-    st.caption("Ranking dos países com mais pilotos registrados na história.")
+    st.markdown("#### 🌍 Top 10 Países de Origem de Pilotos")
+    st.caption("Ranking dos países que mais revelaram pilotos para a Fórmula 1.")
 
     if df_top_driver_countries.empty:
         st.info("Não há dados suficientes para listar os países de pilotos.")
@@ -239,8 +239,8 @@ st.markdown("<br>", unsafe_allow_html=True)
 chart_row3_left, chart_row3_right = st.columns(2)
 
 with chart_row3_left:
-    st.markdown("#### Evolução de Construtoras Ativas")
-    st.caption("Quantidade total de equipes distintas participando a cada temporada.")
+    st.markdown("#### 🏭 Evolução de Construtoras Ativas")
+    st.caption("Histórico da quantidade de equipes distintas participando a cada temporada.")
 
     if df_team_count.empty:
         st.info("Não há dados suficientes para calcular a evolução das equipes.")
@@ -267,8 +267,8 @@ with chart_row3_left:
         st.plotly_chart(fig_team_count, width='stretch')
 
 with chart_row3_right:
-    st.markdown("#### Top 10 Países de Origem de Construtoras")
-    st.caption("Ranking dos países com mais equipes registradas na história.")
+    st.markdown("#### 🌍 Top 10 Países de Origem de Construtoras")
+    st.caption("Ranking dos países que mais fundaram equipes na Fórmula 1.")
 
     if df_top_team_countries.empty:
         st.info("Não há dados suficientes para listar os países de equipes.")
@@ -301,18 +301,16 @@ st.divider()
 st.subheader("Explore o Banco de Dados")
 st.markdown("Utilize o menu lateral para navegar pelas seções da aplicação:")
 
-nav1, nav2, nav3 = st.columns(3)
+nav1, nav2 = st.columns(2)
 
 with nav1:
-    st.info("**🏁 Corridas:** Faça um drill-down detalhado nos resultados oficiais e posições de largada de qualquer evento histórico.")
-    st.info("**🧑‍🚀 Pilotos:** Descubra o raio-x analítico das lendas do esporte, taxas de vitória e comparativos de carreira.")
+    st.info("**🏁 Corridas:** Mergulhe nos resultados oficiais, posições de largada, estatísticas de confiabilidade e destaques de qualquer evento histórico.")
+    st.success("**🏭 Construtoras:** Entenda o domínio da engenharia. Descubra quais equipes marcaram eras, seus pilotos pilares e históricos de abandonos.")
+    st.warning("**🏆 Campeonatos:** Reviva a história de cada temporada. Veja as classificações finais, os campeões e a evolução de pontos corrida a corrida.")
 
 with nav2:
-    st.success("**🏭 Construtoras:** Entenda o domínio da engenharia. Quais equipes marcaram eras e quais pilotos foram seus pilares?")
-    st.success("**🏆 Campeonatos:** A visão final da tabela. Quem ergueu os troféus de Piloto e Construtor no final de cada ano.")
-
-with nav3:
-    st.warning("**🗺️ Circuitos:** Mapas interativos e análises profundas sobre traçados. A pole position realmente importa em Mônaco?")
+    st.info("**🧑‍🚀 Pilotos:** Descubra o raio-x completo das lendas. Explore a evolução anual de carreira, taxas de conversão e rankings globais.")
+    st.success("**🗺️ Circuitos:** Explore mapas e imagens dos traçados. Descubra os reis de cada pista e a real importância da Pole Position.")
 
 st.caption("Dados fornecidos pelo projeto open-source F1DB.")
 render_footer()

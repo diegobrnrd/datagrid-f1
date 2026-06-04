@@ -156,7 +156,7 @@ st.caption("Cada linha mostra a pontuação acumulada corrida a corrida para os 
 col_graph_driver, col_graph_constructor = st.columns(2)
 
 with col_graph_driver:
-    st.markdown("#### Pilotos")
+    st.markdown("#### 🏎️ Pilotos")
 
     if driver_progression.empty:
         st.info("Não há pontos acumulados de pilotos para exibir nesta temporada.")
@@ -196,7 +196,7 @@ with col_graph_driver:
         st.plotly_chart(fig_driver_progression, width='stretch')
 
 with col_graph_constructor:
-    st.markdown("#### Construtoras")
+    st.markdown("#### 🏭 Construtoras")
 
     if selected_season < 1958:
         st.warning("O Mundial de Construtores só existe a partir de 1958.")

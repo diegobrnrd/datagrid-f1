@@ -145,7 +145,7 @@ with tab_individual:
         col_chart1, col_chart2, col_chart3 = st.columns(3)
 
         with col_chart1:
-            st.markdown("#### Taxa de Conversão (Letalidade)")
+            st.markdown("#### 🎯 Taxa de Conversão (Letalidade)")
             st.caption("De todas as corridas que largou, quantas viraram pódio e vitória?")
             if starts > 0:
                 fig_funnel = go.Figure(go.Funnel(
@@ -161,7 +161,7 @@ with tab_individual:
                 st.info("Este piloto não possui largadas registradas.")
 
         with col_chart2:
-            st.markdown("#### Vitórias por Equipe")
+            st.markdown("#### 🏭 Vitórias por Equipe")
             st.caption("A contribuição do piloto por construtora.")
             if not wins_by_team.empty:
                 fig_bar = px.bar(
@@ -178,7 +178,7 @@ with tab_individual:
                 st.info("Este piloto não possui vitórias registradas.")
 
         with col_chart3:
-            st.markdown("#### Perfil do Piloto (Radar)")
+            st.markdown("#### 🕸️ Perfil do Piloto (Radar)")
             st.caption("Comparativo percentual das métricas de sucesso.")
             if starts > 0:
                 win_rate = (wins / starts) * 100
@@ -235,6 +235,7 @@ with tab_individual:
             plot_df["year"] = pd.to_numeric(plot_df["year"], errors="coerce").astype(int)
 
             def render_evolution_chart(title: str, cum_col: str, year_col: str, y_label: str, color: str):
+                """Renderiza gráfico de linha mostrando a evolução acumulada de uma métrica."""
                 fig = px.line(
                     plot_df,
                     x="year",
@@ -256,6 +257,7 @@ with tab_individual:
                 st.plotly_chart(fig, width="stretch", key=f"line_{cum_col}_{driver_id}")
 
             def render_lollipop(title: str, year_col: str, y_label: str, color: str):
+                """Renderiza gráfico do tipo lollipop para exibir valores absolutos por ano."""
                 fig = go.Figure()
                 years = plot_df["year"].tolist()
                 vals = plot_df[year_col].tolist()
@@ -320,6 +322,7 @@ with tab_general:
     st.subheader("📊 Estatísticas Gerais")
 
     def build_general_table(query: str) -> pd.DataFrame:
+        """Executa uma query e adiciona a coluna de Posição ao DataFrame."""
         df = execute_query(query)
         if df.empty:
             return df
@@ -328,6 +331,7 @@ with tab_general:
         return df
 
     def render_general_table(title: str, df: pd.DataFrame):
+        """Renderiza a tabela padronizada no Streamlit."""
         st.markdown(f"#### {title}")
         st.dataframe(df, width="stretch", hide_index=True)
 
