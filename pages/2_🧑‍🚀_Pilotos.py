@@ -334,6 +334,7 @@ with tab_general:
         """
         SELECT d.full_name AS Piloto, d.total_championship_wins AS Total
         FROM driver d
+        WHERE d.total_championship_wins > 0
         ORDER BY d.total_championship_wins DESC, d.last_name ASC
         """
     )
@@ -341,6 +342,7 @@ with tab_general:
         """
         SELECT d.full_name AS Piloto, d.total_race_wins AS Total
         FROM driver d
+        WHERE d.total_race_wins > 0
         ORDER BY d.total_race_wins DESC, d.last_name ASC
         """
     )
@@ -348,6 +350,7 @@ with tab_general:
         """
         SELECT d.full_name AS Piloto, d.total_podiums AS Total
         FROM driver d
+        WHERE d.total_podiums > 0
         ORDER BY d.total_podiums DESC, d.last_name ASC
         """
     )
@@ -355,6 +358,7 @@ with tab_general:
         """
         SELECT d.full_name AS Piloto, d.total_pole_positions AS Total
         FROM driver d
+        WHERE d.total_pole_positions > 0
         ORDER BY d.total_pole_positions DESC, d.last_name ASC
         """
     )
