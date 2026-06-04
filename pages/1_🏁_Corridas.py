@@ -168,8 +168,15 @@ with tab_insights:
         st.subheader("Taxa de Confiabilidade (Terminaram vs Abandonos)")
         
         # Lógica de confiabilidade baseada na coluna `status`
-        # Se for "Concluiu a prova" (que definimos no ETL), ele terminou. Caso contrário, abandonou.
-        results["is_finished"] = results["status"].apply(lambda x: "Concluíram" if x == "Concluiu a prova" else "Abandonaram")
+        def classify_status(status_text):
+            if status_text == "Concluiu a prova":
+                return "Concluíram"
+            elif status_text in ["Não largou (DNS)", "Não qualificou (DNQ)", "Não pré-qualificou (DNPQ)", "Não participou (DNP)", "Desistiu"]:
+                return "Não Largaram"
+            else:
+                return "Abandonaram"
+
+        results["is_finished"] = results["status"].apply(classify_status)
         reliability_counts = results["is_finished"].value_counts().reset_index()
         reliability_counts.columns = ["Status", "Quantidade"]
         
@@ -180,7 +187,7 @@ with tab_insights:
             values="Quantidade",
             hole=0.5,
             color="Status",
-            color_discrete_map={"Concluíram": "#28a745", "Abandonaram": "#dc3545"}
+            color_discrete_map={"Concluíram": "#28a745", "Abandonaram": "#dc3545", "Não Largaram": "#6c757d"}
         )
         fig_pie.update_layout(
             margin=dict(l=0, r=0, t=30, b=0),

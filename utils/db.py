@@ -220,7 +220,10 @@ def get_race_results(race_id: int) -> pd.DataFrame:
         c.name AS constructor_name,
         rr.laps,
         rr.time,
-        rr.reason_retired AS status,
+        COALESCE(rr.reason_retired, 
+                 CASE WHEN rr.position_text IN ('DNF', 'DNP', 'DNPQ', 'DNQ', 'DNS', 'DSQ', 'EX', 'NC') 
+                      THEN rr.position_text 
+                      ELSE NULL END) AS status,
         rr.points,
         rr.pole_position,
         rr.fastest_lap,
