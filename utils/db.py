@@ -112,8 +112,10 @@ def get_all_constructors() -> pd.DataFrame:
             rr.constructor_id,
             COUNT(DISTINCT sds.year) AS total_driver_championship_wins
         FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
         INNER JOIN season_driver_standing sds
             ON rr.driver_id = sds.driver_id
+           AND r.year = sds.year
            AND sds.championship_won = 1
         GROUP BY rr.constructor_id
     ) AS driver_titles ON driver_titles.constructor_id = con.id
