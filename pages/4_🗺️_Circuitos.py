@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from utils.db import execute_query, get_all_circuits
+from utils.db import execute_query, get_all_circuits, get_seasons, get_races_by_season
 from utils.circuit_assets import get_available_circuit_layouts
 from utils.constants import PAISES_TRADUCAO
 from utils.ui import setup_sidebar, render_footer
@@ -61,6 +61,12 @@ fig_map = px.scatter_map(
         "latitude": False, 
         "longitude": False
     },
+    labels={
+        "name": "Circuito",
+        "place_name": "Local",
+        "country": "País",
+        "total_races_held": "Total de Corridas"
+    },
     color_discrete_sequence=["#E10600"], # Cor vermelha F1
     zoom=1.2, 
     height=450
@@ -73,6 +79,50 @@ fig_map.update_layout(
 )
 
 st.plotly_chart(fig_map, width='stretch')
+
+st.divider()
+
+current_season = get_seasons()[0]
+st.subheader(f"Visão da Temporada Atual: Circuitos de {current_season}")
+st.caption(f"Cada ponto representa um circuito no calendário da temporada {current_season}.")
+
+current_races = get_races_by_season(current_season)
+current_circuit_names = current_races["circuit_name"].unique()
+
+# Filtra apenas os circuitos da temporada atual com latitude e longitude cadastradas
+current_map_df = circuits_df[circuits_df["name"].isin(current_circuit_names)].dropna(subset=["latitude", "longitude"]).copy()
+
+# Criação do mapa interativo com Plotly
+fig_map_current = px.scatter_map(
+    current_map_df, 
+    lat="latitude", 
+    lon="longitude", 
+    hover_name="name", 
+    hover_data={
+        "place_name": True, 
+        "country": True, 
+        "total_races_held": True,
+        "latitude": False, 
+        "longitude": False
+    },
+    labels={
+        "name": "Circuito",
+        "place_name": "Local",
+        "country": "País",
+        "total_races_held": "Total de Corridas"
+    },
+    color_discrete_sequence=["#E10600"], # Cor vermelha F1
+    zoom=1.2, 
+    height=450
+)
+
+# Estilo de mapa escuro que não exige token do Mapbox
+fig_map_current.update_layout(
+    mapbox_style="carto-darkmatter",
+    margin={"r": 0, "t": 0, "l": 0, "b": 0}
+)
+
+st.plotly_chart(fig_map_current, width='stretch')
 
 st.divider()
 
