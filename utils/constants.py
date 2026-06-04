@@ -1,3 +1,9 @@
+"""Traduções e constantes textuais usadas na aplicação.
+
+Mantém os nomes originais (`PAISES_TRADUCAO` e `STATUS_TRADUCAO`) para compatibilidade
+com as páginas existentes e expõe aliases em inglês para uso futuro.
+"""
+
 PAISES_TRADUCAO = {
     "United Kingdom": "Reino Unido",
     "Belgium": "Bélgica",
@@ -257,4 +263,15 @@ STATUS_TRADUCAO = {
     "DSQ": "Desclassificado (DSQ)",
     "EX": "Excluído (EX)",
     "NC": "Não classificado (NC)",
+}
+
+COUNTRY_TRANSLATIONS = PAISES_TRADUCAO
+STATUS_TRANSLATIONS = STATUS_TRADUCAO
+FINISHED_STATUS = "Concluiu a prova"
+DID_NOT_START_STATUSES = {
+    "Não largou (DNS)",
+    "Não qualificou (DNQ)",
+    "Não pré-qualificou (DNPQ)",
+    "Não participou (DNP)",
+    "Desistiu",
 }

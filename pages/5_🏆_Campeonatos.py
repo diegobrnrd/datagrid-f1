@@ -1,240 +1,242 @@
-import streamlit as st
+"""Página de classificações e evolução dos campeonatos."""
+
+from __future__ import annotations
+
+import pandas as pd
 import plotly.express as px
+import streamlit as st
+
 from utils.db import (
-    get_seasons,
-    get_driver_standings,
+    get_constructor_points_progression,
     get_constructor_standings,
     get_driver_points_progression,
-    get_constructor_points_progression,
+    get_driver_standings,
+    get_seasons,
 )
-from utils.ui import setup_sidebar, render_footer
-
-# ==========================================
-# 1. CONFIGURAÇÃO DA PÁGINA
-# ==========================================
-st.set_page_config(
-    page_title="DataGrid F1 | Campeonatos",
-    page_icon="🏆",
-    layout="wide"
-)
-
-setup_sidebar()
-
-st.title("🏆 Tabelas de Classificação Final")
-st.markdown("Reviva a história de cada temporada: veja quem dominou o Mundial de Pilotos e qual engenharia levou o troféu no Mundial de Construtores.")
-st.divider()
-
-# ==========================================
-# 2. SELETOR DE TEMPORADA
-# ==========================================
-seasons = get_seasons()
-
-# Cria colunas para centralizar o seletor
-col_space_left, col_selector, col_space_right = st.columns([1, 2, 1])
-
-with col_selector:
-    selected_season = st.selectbox(
-        "Selecione o ano da temporada para visualizar o campeonato:",
-        seasons,
-        index=0 # Por padrão, seleciona a temporada mais recente (primeira da lista)
-    )
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# ==========================================
-# 3. BUSCA DOS DADOS DE CLASSIFICAÇÃO
-# ==========================================
-# Busca os dados do campeonato de pilotos
-driver_standings = get_driver_standings(selected_season)
-
-# Busca os dados do campeonato de construtores
-constructor_standings = get_constructor_standings(selected_season)
-
-# Busca a evolução acumulada de pontos por corrida
-driver_progression = get_driver_points_progression(selected_season)
-constructor_progression = get_constructor_points_progression(selected_season)
-
-# ==========================================
-# 4. COROAÇÃO (Destaque dos Campeões)
-# ==========================================
-if not driver_standings.empty:
-    # O piloto campeão é aquele com championship_won = 1 (True) ou o líder de pontos (posição 1)
-    champion_row = driver_standings[driver_standings["championship_won"] == 1]
-    if champion_row.empty:
-         champion_row = driver_standings.iloc[[0]] # Fallback para o líder caso a flag não esteja setada
-    
-    driver_champion_name = champion_row.iloc[0]["driver_name"]
-    driver_champion_points = champion_row.iloc[0]["points"]
-else:
-    driver_champion_name = "N/A"
-    driver_champion_points = 0
-
-if not constructor_standings.empty:
-     # Mesma lógica para a equipe campeã
-    champion_team_row = constructor_standings[constructor_standings["championship_won"] == 1]
-    if champion_team_row.empty:
-         champion_team_row = constructor_standings.iloc[[0]]
-         
-    team_champion_name = champion_team_row.iloc[0]["constructor_name"]
-    team_champion_points = champion_team_row.iloc[0]["points"]
-else:
-    team_champion_name = "N/A"
-    team_champion_points = 0
+from utils.ui import add_vertical_space, apply_common_chart_layout, plotly_chart, render_footer, render_header, setup_page
 
 
-# Exibe as caixas de coroação se houver dados
-if not driver_standings.empty:
-    col_champ1, col_champ2 = st.columns(2)
-    
-    with col_champ1:
-        # use the champion row determined above (champion_row)
-        if champion_row.iloc[0].get("championship_won") == 1:
-            st.success(f"**Mundial de Pilotos ({selected_season})**\n\n🏆 Campeão: **{driver_champion_name}** ({driver_champion_points:.1f} pts)")
+@st.cache_data(show_spinner=False)
+def load_seasons() -> list[int]:
+    return get_seasons()
+
+
+@st.cache_data(show_spinner=False)
+def load_championship_data(year: int) -> dict[str, pd.DataFrame]:
+    """Carrega classificações e progressões de pontos da temporada."""
+    return {
+        "driver_standings": get_driver_standings(year),
+        "constructor_standings": get_constructor_standings(year),
+        "driver_progression": get_driver_points_progression(year),
+        "constructor_progression": get_constructor_points_progression(year),
+    }
+
+
+def select_season(seasons: list[int]) -> int:
+    """Renderiza o seletor centralizado de temporada."""
+    _, col_selector, _ = st.columns([1, 2, 1])
+    with col_selector:
+        selected_season = st.selectbox(
+            "Selecione o ano da temporada para visualizar o campeonato:",
+            seasons,
+            index=0,
+        )
+    add_vertical_space()
+    return int(selected_season)
+
+
+def get_champion_row(standings: pd.DataFrame) -> pd.DataFrame:
+    """Retorna a linha do campeão; usa líder de pontos como fallback."""
+    if standings.empty:
+        return standings
+    champion_row = standings[standings["championship_won"] == 1]
+    return champion_row if not champion_row.empty else standings.iloc[[0]]
+
+
+def render_crowning(selected_season: int, driver_standings: pd.DataFrame, constructor_standings: pd.DataFrame) -> None:
+    """Renderiza os cards de campeão/líder da temporada."""
+    if driver_standings.empty:
+        return
+
+    driver_champion = get_champion_row(driver_standings).iloc[0]
+    columns = st.columns(2)
+
+    with columns[0]:
+        if driver_champion.get("championship_won") == 1:
+            st.success(
+                f"**Mundial de Pilotos ({selected_season})**\n\n"
+                f"🏆 Campeão: **{driver_champion['driver_name']}** ({driver_champion['points']:.1f} pts)"
+            )
         else:
-            st.info(f"**Mundial de Pilotos ({selected_season})**\n\n🏁 Líder: **{driver_champion_name}** ({driver_champion_points:.1f} pts)\n\n*Campeonato em andamento*")
-        
-    with col_champ2:
-        if selected_season >= 1958 and not constructor_standings.empty:
-            if champion_team_row.iloc[0].get("championship_won") == 1:
-                st.success(f"**Mundial de Construtores ({selected_season})**\n\n🏭 Campeã: **{team_champion_name}** ({team_champion_points:.1f} pts)")
-            else:
-                st.info(f"**Mundial de Construtores ({selected_season})**\n\n🏁 Líder: **{team_champion_name}** ({team_champion_points:.1f} pts)\n\n*Campeonato em andamento*")
-        elif selected_season < 1958:
-            st.warning(f"**Mundial de Construtores ({selected_season})**\n\nO Mundial de Construtores ainda não havia sido criado (iniciou em 1958).")
+            st.info(
+                f"**Mundial de Pilotos ({selected_season})**\n\n"
+                f"🏁 Líder: **{driver_champion['driver_name']}** ({driver_champion['points']:.1f} pts)\n\n"
+                "*Campeonato em andamento*"
+            )
 
-st.markdown("<br>", unsafe_allow_html=True)
+    with columns[1]:
+        if selected_season < 1958:
+            st.warning(
+                f"**Mundial de Construtores ({selected_season})**\n\n"
+                "O Mundial de Construtores ainda não havia sido criado (iniciou em 1958)."
+            )
+            return
+        if constructor_standings.empty:
+            st.info(f"**Mundial de Construtores ({selected_season})**\n\nDados indisponíveis.")
+            return
 
-# ==========================================
-# 5. TABELAS DE CLASSIFICAÇÃO (TABS)
-# ==========================================
-tab_pilotos, tab_equipes = st.tabs(["👨‍🚀 Classificação de Pilotos", "🏭 Classificação de Construtores"])
+        constructor_champion = get_champion_row(constructor_standings).iloc[0]
+        if constructor_champion.get("championship_won") == 1:
+            st.success(
+                f"**Mundial de Construtores ({selected_season})**\n\n"
+                f"🏭 Campeã: **{constructor_champion['constructor_name']}** ({constructor_champion['points']:.1f} pts)"
+            )
+        else:
+            st.info(
+                f"**Mundial de Construtores ({selected_season})**\n\n"
+                f"🏁 Líder: **{constructor_champion['constructor_name']}** ({constructor_champion['points']:.1f} pts)\n\n"
+                "*Campeonato em andamento*"
+            )
 
-with tab_pilotos:
+    add_vertical_space()
+
+
+def render_driver_standings(selected_season: int, driver_standings: pd.DataFrame) -> None:
     st.subheader(f"Mundial de Pilotos - Tabela Final de {selected_season}")
-    
     if driver_standings.empty:
         st.info("Dados de classificação de pilotos não encontrados para esta temporada.")
-    else:
-        st.dataframe(
-            driver_standings[["position", "driver_name", "points", "championship_won"]],
-            width='stretch',
-            hide_index=True,
-            column_config={
-                "position": st.column_config.TextColumn("Posição", width="small"),
-                "driver_name": "Piloto",
-                "points": st.column_config.NumberColumn("Pontuação Total", format="%.1f"),
-                "championship_won": st.column_config.CheckboxColumn("Campeão Mundial 🏆"),
-            },
-        )
+        return
 
-with tab_equipes:
+    st.dataframe(
+        driver_standings[["position", "driver_name", "points", "championship_won"]],
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "position": st.column_config.TextColumn("Posição", width="small"),
+            "driver_name": "Piloto",
+            "points": st.column_config.NumberColumn("Pontuação Total", format="%.1f"),
+            "championship_won": st.column_config.CheckboxColumn("Campeão Mundial 🏆"),
+        },
+    )
+
+
+def render_constructor_standings(selected_season: int, constructor_standings: pd.DataFrame) -> None:
     st.subheader(f"Mundial de Construtores - Tabela Final de {selected_season}")
-    
     if selected_season < 1958:
-         st.warning("Historicamente, o Campeonato Mundial de Construtores da FIA só foi introduzido em 1958. Portanto, não há classificação de equipes para este ano.")
-    elif constructor_standings.empty:
+        st.warning("Historicamente, o Campeonato Mundial de Construtores da FIA só foi introduzido em 1958. Portanto, não há classificação de equipes para este ano.")
+        return
+    if constructor_standings.empty:
         st.info("Dados de classificação de construtores não encontrados para esta temporada.")
-    else:
-        st.dataframe(
-            constructor_standings[["position", "constructor_name", "points", "championship_won"]],
-            width='stretch',
-            hide_index=True,
-            column_config={
-                "position": st.column_config.TextColumn("Posição", width="small"),
-                "constructor_name": "Construtora",
-                "points": st.column_config.NumberColumn("Pontuação Total", format="%.1f"),
-                "championship_won": st.column_config.CheckboxColumn("Campeã Mundial 🏆"),
-            },
+        return
+
+    st.dataframe(
+        constructor_standings[["position", "constructor_name", "points", "championship_won"]],
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "position": st.column_config.TextColumn("Posição", width="small"),
+            "constructor_name": "Construtora",
+            "points": st.column_config.NumberColumn("Pontuação Total", format="%.1f"),
+            "championship_won": st.column_config.CheckboxColumn("Campeã Mundial 🏆"),
+        },
+    )
+
+
+def render_standings_tabs(selected_season: int, data: dict[str, pd.DataFrame]) -> None:
+    tab_drivers, tab_teams = st.tabs(["👨‍🚀 Classificação de Pilotos", "🏭 Classificação de Construtores"])
+    with tab_drivers:
+        render_driver_standings(selected_season, data["driver_standings"])
+    with tab_teams:
+        render_constructor_standings(selected_season, data["constructor_standings"])
+
+
+def render_progression_chart(
+    progression_df: pd.DataFrame,
+    *,
+    entity_column: str,
+    entity_label: str,
+    color_sequence: list[str],
+) -> None:
+    """Renderiza gráfico de pontos acumulados corrida a corrida."""
+    race_order = progression_df.sort_values("race_round")["race_label"].drop_duplicates().tolist()
+    fig = px.line(
+        progression_df,
+        x="race_label",
+        y="cumulative_points",
+        color=entity_column,
+        markers=True,
+        custom_data=["race_name", "race_points"],
+        labels={
+            "race_label": "Corrida",
+            "cumulative_points": "Pontos acumulados",
+            entity_column: entity_label,
+            "race_name": "Grande Prêmio",
+        },
+        hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
+        category_orders={"race_label": race_order},
+        color_discrete_sequence=color_sequence,
+    )
+    fig.update_traces(
+        hovertemplate=(
+            "Corrida: %{x}<br>"
+            "Grande Prêmio: %{customdata[0]}<br>"
+            "Pontos acumulados: %{y:.1f}<br>"
+            "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
         )
+    )
+    apply_common_chart_layout(fig, margin_top=20)
+    fig.update_layout(legend_title_text=entity_label)
+    plotly_chart(fig)
 
-# ==========================================
-# 6. EVOLUÇÃO DE PONTOS NA TEMPORADA
-# ==========================================
-st.subheader("📈 Evolução da Pontuação na Temporada")
-st.caption("Cada linha mostra a pontuação acumulada corrida a corrida para os pilotos e as equipes que somaram pontos no ano selecionado.")
 
-col_graph_driver, col_graph_constructor = st.columns(2)
+def render_points_progression(selected_season: int, data: dict[str, pd.DataFrame]) -> None:
+    st.subheader("📈 Evolução da Pontuação na Temporada")
+    st.caption("Cada linha mostra a pontuação acumulada corrida a corrida para os pilotos e as equipes que somaram pontos no ano selecionado.")
 
-with col_graph_driver:
-    st.markdown("#### 🏎️ Pilotos")
-
-    if driver_progression.empty:
-        st.info("Não há pontos acumulados de pilotos para exibir nesta temporada.")
-    else:
-        driver_race_order = driver_progression.sort_values("race_round")["race_label"].drop_duplicates().tolist()
-        fig_driver_progression = px.line(
-            driver_progression,
-            x="race_label",
-            y="cumulative_points",
-            color="driver_name",
-            markers=True,
-            custom_data=["race_name", "race_points"],
-            labels={
-                "race_label": "Corrida",
-                "cumulative_points": "Pontos acumulados",
-                "driver_name": "Piloto",
-                "race_name": "Grande Prêmio",
-            },
-            hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
-            category_orders={"race_label": driver_race_order},
-            color_discrete_sequence=px.colors.qualitative.Dark24,
-        )
-        fig_driver_progression.update_traces(
-            hovertemplate=(
-                "Corrida: %{x}<br>"
-                "Grande Prêmio: %{customdata[0]}<br>"
-                "Pontos acumulados: %{y:.1f}<br>"
-                "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
+    driver_col, constructor_col = st.columns(2)
+    with driver_col:
+        st.markdown("#### 🏎️ Pilotos")
+        driver_progression = data["driver_progression"]
+        if driver_progression.empty:
+            st.info("Não há pontos acumulados de pilotos para exibir nesta temporada.")
+        else:
+            render_progression_chart(
+                driver_progression,
+                entity_column="driver_name",
+                entity_label="Pilotos",
+                color_sequence=px.colors.qualitative.Dark24,
             )
-        )
-        fig_driver_progression.update_layout(
-            margin=dict(l=0, r=0, t=20, b=0),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            legend_title_text="Pilotos",
-        )
-        st.plotly_chart(fig_driver_progression, width='stretch')
 
-with col_graph_constructor:
-    st.markdown("#### 🏭 Construtoras")
-
-    if selected_season < 1958:
-        st.warning("O Mundial de Construtores só existe a partir de 1958.")
-    elif constructor_progression.empty:
-        st.info("Não há pontos acumulados de construtoras para exibir nesta temporada.")
-    else:
-        constructor_race_order = constructor_progression.sort_values("race_round")["race_label"].drop_duplicates().tolist()
-        fig_constructor_progression = px.line(
-            constructor_progression,
-            x="race_label",
-            y="cumulative_points",
-            color="constructor_name",
-            markers=True,
-            custom_data=["race_name", "race_points"],
-            labels={
-                "race_label": "Corrida",
-                "cumulative_points": "Pontos acumulados",
-                "constructor_name": "Construtora",
-                "race_name": "Grande Prêmio",
-            },
-            hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
-            category_orders={"race_label": constructor_race_order},
-            color_discrete_sequence=px.colors.qualitative.Set2,
-        )
-        fig_constructor_progression.update_traces(
-            hovertemplate=(
-                "Corrida: %{x}<br>"
-                "Grande Prêmio: %{customdata[0]}<br>"
-                "Pontos acumulados: %{y:.1f}<br>"
-                "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
+    with constructor_col:
+        st.markdown("#### 🏭 Construtoras")
+        constructor_progression = data["constructor_progression"]
+        if selected_season < 1958:
+            st.warning("O Mundial de Construtores só existe a partir de 1958.")
+        elif constructor_progression.empty:
+            st.info("Não há pontos acumulados de construtoras para exibir nesta temporada.")
+        else:
+            render_progression_chart(
+                constructor_progression,
+                entity_column="constructor_name",
+                entity_label="Construtoras",
+                color_sequence=px.colors.qualitative.Set2,
             )
-        )
-        fig_constructor_progression.update_layout(
-            margin=dict(l=0, r=0, t=20, b=0),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            legend_title_text="Construtoras",
-        )
-        st.plotly_chart(fig_constructor_progression, width='stretch')
 
-render_footer()
+
+def main() -> None:
+    setup_page("DataGrid F1 | Campeonatos", "🏆")
+    render_header(
+        "🏆 Tabelas de Classificação Final",
+        "Reviva a história de cada temporada: veja quem dominou o Mundial de Pilotos e qual engenharia levou o troféu no Mundial de Construtores.",
+    )
+
+    selected_season = select_season(load_seasons())
+    data = load_championship_data(selected_season)
+    render_crowning(selected_season, data["driver_standings"], data["constructor_standings"])
+    render_standings_tabs(selected_season, data)
+    render_points_progression(selected_season, data)
+    render_footer()
+
+
+if __name__ == "__main__":
+    main()
