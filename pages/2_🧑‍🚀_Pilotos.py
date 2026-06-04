@@ -152,7 +152,8 @@ with tab_individual:
                     y=["Largadas", "Pódios", "Vitórias"],
                     x=[starts, podiums, wins],
                     textinfo="value+percent initial",
-                    marker={"color": ["#1f77b4", "#ff7f0e", "#E10600"]},
+                    textfont=dict(color=["white", "white", "black"]),
+                    marker={"color": ["#7A0000", "#E10600", "#FF6A6A"]},
                 ))
                 fig_funnel.update_layout(margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
                 st.plotly_chart(fig_funnel, width="stretch", key=f"funnel_{driver_id}")
@@ -168,10 +169,10 @@ with tab_individual:
                     x="constructor",
                     y="wins",
                     labels={"constructor": "Equipe", "wins": "Vitórias"},
-                    color="constructor",
-                    color_discrete_sequence=px.colors.qualitative.Pastel,
+                    color="wins",
+                    color_continuous_scale=["#FF6A6A","#E10600", "#7A0000"],
                 )
-                fig_bar.update_layout(showlegend=False, margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                fig_bar.update_layout(showlegend=False, margin=dict(l=0, r=0, t=20, b=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", coloraxis_showscale=False)
                 st.plotly_chart(fig_bar, width="stretch", key=f"wins_by_team_{driver_id}")
             else:
                 st.info("Este piloto não possui vitórias registradas.")
