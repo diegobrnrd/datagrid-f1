@@ -168,6 +168,7 @@ with col_graph_driver:
             y="cumulative_points",
             color="driver_name",
             markers=True,
+            custom_data=["race_name", "race_points"],
             labels={
                 "race_label": "Corrida",
                 "cumulative_points": "Pontos acumulados",
@@ -177,6 +178,14 @@ with col_graph_driver:
             hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
             category_orders={"race_label": driver_race_order},
             color_discrete_sequence=px.colors.qualitative.Dark24,
+        )
+        fig_driver_progression.update_traces(
+            hovertemplate=(
+                "Corrida: %{x}<br>"
+                "Grande Prêmio: %{customdata[0]}<br>"
+                "Pontos acumulados: %{y:.1f}<br>"
+                "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
+            )
         )
         fig_driver_progression.update_layout(
             margin=dict(l=0, r=0, t=20, b=0),
@@ -201,6 +210,7 @@ with col_graph_constructor:
             y="cumulative_points",
             color="constructor_name",
             markers=True,
+            custom_data=["race_name", "race_points"],
             labels={
                 "race_label": "Corrida",
                 "cumulative_points": "Pontos acumulados",
@@ -210,6 +220,14 @@ with col_graph_constructor:
             hover_data={"race_name": True, "race_round": False, "cumulative_points": ":.1f"},
             category_orders={"race_label": constructor_race_order},
             color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        fig_constructor_progression.update_traces(
+            hovertemplate=(
+                "Corrida: %{x}<br>"
+                "Grande Prêmio: %{customdata[0]}<br>"
+                "Pontos acumulados: %{y:.1f}<br>"
+                "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
+            )
         )
         fig_constructor_progression.update_layout(
             margin=dict(l=0, r=0, t=20, b=0),

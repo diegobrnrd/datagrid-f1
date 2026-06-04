@@ -230,6 +230,11 @@ def _build_points_progression(df: pd.DataFrame, entity_column: str) -> pd.DataFr
     )
 
     cumulative_df = cumulative_df.merge(race_labels, left_on="race_round", right_index=True, how="left")
+    cumulative_df = cumulative_df.merge(
+        progression_df[["race_round", entity_column, "race_points"]],
+        on=["race_round", entity_column],
+        how="left",
+    )
     cumulative_df["race_label"] = cumulative_df["race_round"].apply(lambda round_number: f"Corrida {round_number}")
 
     return cumulative_df
