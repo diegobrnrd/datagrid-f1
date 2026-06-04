@@ -134,6 +134,77 @@ def get_all_circuits() -> pd.DataFrame:
     return execute_query(query)
 
 
+def get_grid_capacity_by_season() -> pd.DataFrame:
+    """Retorna a quantidade de vagas no grid por temporada."""
+    query = """
+    WITH race_grid AS (
+        SELECT
+            r.year,
+            rr.race_id,
+            COUNT(*) AS grid_slots
+        FROM race_result rr
+        INNER JOIN race r ON rr.race_id = r.id
+        -- Conta apenas quem efetivamente garantiu uma vaga no grid (exclui DNQ/DNPQ)
+        WHERE rr.grid_position_text IS NOT NULL AND rr.grid_position_text != ''
+        GROUP BY r.year, rr.race_id
+    )
+    SELECT
+        year,
+        ROUND(AVG(grid_slots)) AS avg_grid_slots
+    FROM race_grid
+    GROUP BY year
+    ORDER BY year
+    """
+    return execute_query(query)
+
+
+def get_constructor_count_by_season() -> pd.DataFrame:
+    """Retorna a quantidade de equipes distintas por temporada."""
+    query = """
+    SELECT
+        r.year,
+        COUNT(DISTINCT rr.constructor_id) AS total_teams
+    FROM race_result rr
+    INNER JOIN race r ON rr.race_id = r.id
+    WHERE rr.constructor_id IS NOT NULL
+    GROUP BY r.year
+    ORDER BY r.year
+    """
+    return execute_query(query)
+
+
+def get_top_countries_by_drivers(limit: int = 10) -> pd.DataFrame:
+    """Retorna os países com mais pilotos na história da F1."""
+    query = """
+    SELECT
+        c.name AS country,
+        COUNT(DISTINCT d.id) AS total_drivers
+    FROM driver d
+    LEFT JOIN country c ON d.nationality_country_id = c.id
+    WHERE c.name IS NOT NULL
+    GROUP BY c.name
+    ORDER BY total_drivers DESC, c.name ASC
+    LIMIT ?
+    """
+    return execute_query(query, (limit,))
+
+
+def get_top_countries_by_constructors(limit: int = 10) -> pd.DataFrame:
+    """Retorna os países com mais equipes na história da F1."""
+    query = """
+    SELECT
+        c.name AS country,
+        COUNT(DISTINCT con.id) AS total_constructors
+    FROM constructor con
+    LEFT JOIN country c ON con.country_id = c.id
+    WHERE c.name IS NOT NULL
+    GROUP BY c.name
+    ORDER BY total_constructors DESC, c.name ASC
+    LIMIT ?
+    """
+    return execute_query(query, (limit,))
+
+
 # ==========================================
 # 5. QUERIES DE RESULTADOS DE CORRIDA
 # ==========================================

@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from utils.db import execute_query
+from utils.db import (
+    execute_query,
+    get_grid_capacity_by_season,
+    get_constructor_count_by_season,
+    get_top_countries_by_drivers,
+    get_top_countries_by_constructors,
+)
 from utils.constants import PAISES_TRADUCAO
 from utils.ui import setup_sidebar, render_footer
 
@@ -68,14 +74,32 @@ def load_dashboard_metrics():
         ORDER BY total_races DESC 
         LIMIT 10
     """)
+
+    grid_capacity_by_season = get_grid_capacity_by_season()
+    constructor_count_by_season = get_constructor_count_by_season()
+    top_countries_by_drivers = get_top_countries_by_drivers()
+    top_countries_by_constructors = get_top_countries_by_constructors()
     
     # Aplicando a tradução aos nomes dos países
     top_countries["country"] = top_countries["country"].map(PAISES_TRADUCAO).fillna(top_countries["country"])
+    top_countries_by_drivers["country"] = top_countries_by_drivers["country"].map(PAISES_TRADUCAO).fillna(top_countries_by_drivers["country"])
+    top_countries_by_constructors["country"] = top_countries_by_constructors["country"].map(PAISES_TRADUCAO).fillna(top_countries_by_constructors["country"])
     
-    return total_drivers, total_constructors, total_races, total_circuits, races_per_year, top_countries
+    return (
+        total_drivers,
+        total_constructors,
+        total_races,
+        total_circuits,
+        races_per_year,
+        top_countries,
+        grid_capacity_by_season,
+        constructor_count_by_season,
+        top_countries_by_drivers,
+        top_countries_by_constructors,
+    )
 
 # Carrega os dados
-kpi_drivers, kpi_constructors, kpi_races, kpi_circuits, df_races_year, df_top_countries = load_dashboard_metrics()
+kpi_drivers, kpi_constructors, kpi_races, kpi_circuits, df_races_year, df_top_countries, df_grid_capacity, df_team_count, df_top_driver_countries, df_top_team_countries = load_dashboard_metrics()
 
 # ==========================================
 # 4. HERO SECTION (Cabeçalho)
@@ -103,11 +127,11 @@ st.markdown("<br>", unsafe_allow_html=True) # Espaçamento vertical
 # ==========================================
 # 6. VISÃO MACRO (Gráficos Analíticos)
 # ==========================================
-chart_col1, chart_col2 = st.columns([3, 2])
+chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown("#### Evolução do Calendário")
-    st.caption("Quantidade de corridas disputadas por temporada.")
+    st.markdown("#### Evolução do Calendário de Corridas")
+    st.caption("Quantidade total de Grandes Prêmios disputados a cada temporada.")
     
     fig_line = px.area(
         df_races_year, 
@@ -117,6 +141,7 @@ with chart_col1:
         color_discrete_sequence=["#E10600"] # Vermelho F1
     )
     fig_line.update_layout(
+        height=320,
         margin=dict(l=0, r=0, t=10, b=0),
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='#333'),
@@ -126,26 +151,147 @@ with chart_col1:
     st.plotly_chart(fig_line, width='stretch')
 
 with chart_col2:
-    st.markdown("#### Top 10 Países Sedes")
-    st.caption("Locais que mais receberam Grandes Prêmios na história.")
+    st.markdown("#### Top 10 Países-Sede de Corridas")
+    st.caption("Ranking dos países que mais receberam Grandes Prêmios na história.")
     
     fig_bar = px.bar(
         df_top_countries, 
-        x="country", 
-        y="total_races",
+        x="total_races",
+        y="country",
+        orientation="h",
         labels={"country": "País", "total_races": "Número de Corridas"},
             color="total_races",
             color_continuous_scale=[[0, "#FF6A6A"], [0.5, "#E10600"], [1, "#7A0000"]]
     )
     fig_bar.update_layout(
+        height=320,
         margin=dict(l=0, r=0, t=10, b=0),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#333'),
+        xaxis=dict(showgrid=True, gridcolor='#333'),
+        yaxis=dict(showgrid=False, autorange="reversed"),
         plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             coloraxis_showscale=False
     )
     st.plotly_chart(fig_bar, width='stretch')
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+chart_row2_left, chart_row2_right = st.columns(2)
+
+with chart_row2_left:
+    st.markdown("#### Evolução do Grid de Largada")
+    st.caption("Capacidade máxima de carros competindo no grid a cada temporada.")
+
+    if df_grid_capacity.empty:
+        st.info("Não há dados suficientes para calcular a evolução do grid.")
+    else:
+        grid_value_column = "grid_slots" if "grid_slots" in df_grid_capacity.columns else "avg_grid_slots"
+        fig_grid = px.area(
+            df_grid_capacity,
+            x="year",
+            y=grid_value_column,
+            labels={"year": "Temporada", grid_value_column: "Vagas no grid"},
+            color_discrete_sequence=["#E10600"],
+        )
+        fig_grid.update_traces(
+            hovertemplate="Temporada: %{x}<br>Vagas no grid: %{y}<extra></extra>",
+            line_color="#E10600",
+        )
+        fig_grid.update_layout(
+            height=320,
+            margin=dict(l=0, r=0, t=10, b=0),
+            xaxis=dict(dtick=5),
+            yaxis=dict(title="Vagas no grid", rangemode="tozero"),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+        )
+        st.plotly_chart(fig_grid, width='stretch')
+
+with chart_row2_right:
+    st.markdown("#### Top 10 Países de Origem de Pilotos")
+    st.caption("Ranking dos países com mais pilotos registrados na história.")
+
+    if df_top_driver_countries.empty:
+        st.info("Não há dados suficientes para listar os países de pilotos.")
+    else:
+        fig_driver_countries = px.bar(
+            df_top_driver_countries,
+            x="total_drivers",
+            y="country",
+            orientation="h",
+            labels={"country": "País", "total_drivers": "Pilotos"},
+            color="total_drivers",
+            color_continuous_scale=[[0, "#FF6A6A"], [0.5, "#E10600"], [1, "#7A0000"]],
+        )
+        fig_driver_countries.update_layout(
+            height=320,
+            margin=dict(l=0, r=0, t=10, b=0),
+            xaxis=dict(showgrid=True, gridcolor='#333'),
+            yaxis=dict(showgrid=False, autorange="reversed"),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            coloraxis_showscale=False,
+        )
+        st.plotly_chart(fig_driver_countries, width='stretch')
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+chart_row3_left, chart_row3_right = st.columns(2)
+
+with chart_row3_left:
+    st.markdown("#### Evolução de Construtoras Ativas")
+    st.caption("Quantidade total de equipes distintas participando a cada temporada.")
+
+    if df_team_count.empty:
+        st.info("Não há dados suficientes para calcular a evolução das equipes.")
+    else:
+        fig_team_count = px.area(
+            df_team_count,
+            x="year",
+            y="total_teams",
+            labels={"year": "Temporada", "total_teams": "Equipes"},
+            color_discrete_sequence=["#E10600"],
+        )
+        fig_team_count.update_traces(
+            hovertemplate="Temporada: %{x}<br>Equipes: %{y}<extra></extra>",
+            line_color="#E10600",
+        )
+        fig_team_count.update_layout(
+            height=320,
+            margin=dict(l=0, r=0, t=10, b=0),
+            xaxis=dict(dtick=5),
+            yaxis=dict(title="Equipes", rangemode="tozero"),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+        )
+        st.plotly_chart(fig_team_count, width='stretch')
+
+with chart_row3_right:
+    st.markdown("#### Top 10 Países de Origem de Construtoras")
+    st.caption("Ranking dos países com mais equipes registradas na história.")
+
+    if df_top_team_countries.empty:
+        st.info("Não há dados suficientes para listar os países de equipes.")
+    else:
+        fig_team_countries = px.bar(
+            df_top_team_countries,
+            x="total_constructors",
+            y="country",
+            orientation="h",
+            labels={"country": "País", "total_constructors": "Equipes"},
+            color="total_constructors",
+            color_continuous_scale=[[0, "#FF6A6A"], [0.5, "#E10600"], [1, "#7A0000"]],
+        )
+        fig_team_countries.update_layout(
+            height=320,
+            margin=dict(l=0, r=0, t=10, b=0),
+            xaxis=dict(showgrid=True, gridcolor='#333'),
+            yaxis=dict(showgrid=False, autorange="reversed"),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            coloraxis_showscale=False,
+        )
+        st.plotly_chart(fig_team_countries, width='stretch')
 
 st.divider()
 
