@@ -108,12 +108,13 @@ def render_driver_standings(selected_season: int, driver_standings: pd.DataFrame
         return
 
     st.dataframe(
-        driver_standings[["position", "driver_name", "points", "championship_won"]],
+        driver_standings[["position", "driver_name", "constructor_name", "points", "championship_won"]],
         width="stretch",
         hide_index=True,
         column_config={
             "position": st.column_config.TextColumn("Posição", width="small"),
             "driver_name": "Piloto",
+            "constructor_name": "Equipe",
             "points": st.column_config.NumberColumn("Pontuação Total", format="%.1f"),
             "championship_won": st.column_config.CheckboxColumn("Campeão Mundial 🏆"),
         },

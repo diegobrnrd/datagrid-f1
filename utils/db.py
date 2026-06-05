@@ -791,6 +791,15 @@ def get_driver_standings(year: int) -> pd.DataFrame:
         SELECT
             sds.position_text AS position,
             d.full_name AS driver_name,
+                REPLACE(
+                    (
+                        SELECT GROUP_CONCAT(DISTINCT c.name)
+                        FROM race_result rr
+                        INNER JOIN race r ON rr.race_id = r.id
+                        INNER JOIN constructor c ON rr.constructor_id = c.id
+                        WHERE r.year = sds.year AND rr.driver_id = sds.driver_id
+                    ), ',', ' / '
+                ) AS constructor_name,
             sds.points,
             sds.championship_won
         FROM season_driver_standing sds
