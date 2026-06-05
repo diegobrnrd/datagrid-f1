@@ -219,14 +219,15 @@ def render_navigation_guide() -> None:
     st.subheader("Explore o Banco de Dados")
     st.markdown("Utilize o menu lateral para navegar pelas seções da aplicação:")
 
-    nav1, nav2 = st.columns(2)
+    nav1, nav2, nav3 = st.columns(3)
     with nav1:
         st.info("**🏁 Corridas:** Mergulhe nos resultados oficiais, posições de largada, estatísticas de confiabilidade e destaques de qualquer evento histórico.")
-        st.success("**🏭 Construtoras:** Entenda o domínio da engenharia. Descubra quais equipes marcaram eras, seus pilotos pilares e históricos de abandonos.")
-        st.warning("**🏆 Campeonatos:** Reviva a história de cada temporada. Veja as classificações finais, os campeões e a evolução de pontos corrida a corrida.")
-    with nav2:
         st.info("**🧑‍🚀 Pilotos:** Descubra o raio-x completo das lendas. Explore a evolução anual de carreira, taxas de conversão e rankings globais.")
+    with nav2:
+        st.success("**🏭 Construtoras:** Entenda o domínio da engenharia. Descubra quais equipes marcaram eras, seus pilotos pilares e históricos de abandonos.")
         st.success("**🗺️ Circuitos:** Explore mapas e imagens dos traçados. Descubra os reis de cada pista e a real importância da Pole Position.")
+    with nav3:
+        st.warning("**🏆 Campeonatos:** Reviva a história de cada temporada. Veja as classificações finais, os campeões e a evolução de pontos corrida a corrida.")
 
     st.caption("Dados fornecidos pelo projeto open-source F1DB.")
 
