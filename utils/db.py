@@ -746,14 +746,18 @@ def get_circuit_record(circuit_id: int | str, entity_type: str, metric_type: str
     metric = _CIRCUIT_METRIC_SQL[metric_type]
     df = execute_query(
         f"""
-        SELECT {entity['name']}, COUNT(*) AS total
-        FROM race_result rr
-        INNER JOIN race r ON rr.race_id = r.id
-        INNER JOIN {entity['join']}
-        WHERE r.circuit_id = ? AND {metric['condition']}
-        GROUP BY e.id
-        ORDER BY total DESC, name ASC
-        LIMIT 1
+        WITH record_counts AS (
+            SELECT {entity['name']}, COUNT(*) AS total
+            FROM race_result rr
+            INNER JOIN race r ON rr.race_id = r.id
+            INNER JOIN {entity['join']}
+            WHERE r.circuit_id = ? AND {metric['condition']}
+            GROUP BY e.id
+        )
+        SELECT name, total
+        FROM record_counts
+        WHERE total = (SELECT MAX(total) FROM record_counts)
+        ORDER BY name ASC
         """,
         (circuit_id,),
     )

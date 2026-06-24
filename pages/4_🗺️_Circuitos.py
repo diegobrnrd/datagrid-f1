@@ -71,8 +71,10 @@ def format_record(record_df: pd.DataFrame) -> str:
     """Formata o retorno do recorde de circuito."""
     if record_df.empty:
         return "Dados indisponíveis"
-    row = record_df.iloc[0]
-    return f"{row['name']} ({int(row['total'])} {row['label']})"
+    names = " / ".join(record_df["name"])
+    total = int(record_df.iloc[0]["total"])
+    label = record_df.iloc[0]["label"]
+    return f"{names} ({total} {label})"
 
 
 def render_circuit_facts(circuit_row: pd.Series) -> None:
