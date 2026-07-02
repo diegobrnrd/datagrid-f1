@@ -834,44 +834,20 @@ def get_constructor_standings(year: int) -> pd.DataFrame:
 
 
 def _build_points_progression(df: pd.DataFrame, entity_column: str) -> pd.DataFrame:
-    """Consolida pontos por corrida em uma série acumulada por participante."""
+    """Normaliza snapshots cumulativos de pontos por corrida para o gráfico."""
     if df.empty:
         return df
 
     progression_df = df.copy()
     progression_df["race_round"] = pd.to_numeric(progression_df["race_round"], errors="coerce").fillna(0).astype(int)
-    progression_df["race_points"] = pd.to_numeric(progression_df["race_points"], errors="coerce").fillna(0.0)
-
-    race_labels = (
-        progression_df[["race_round", "race_name"]]
-        .drop_duplicates(subset=["race_round"])
-        .sort_values("race_round")
-        .set_index("race_round")
+    progression_df["cumulative_points"] = pd.to_numeric(progression_df["cumulative_points"], errors="coerce").fillna(0.0)
+    progression_df = progression_df.sort_values(["race_round", entity_column]).reset_index(drop=True)
+    progression_df["race_points"] = (
+        progression_df.groupby(entity_column)["cumulative_points"].diff().fillna(progression_df["cumulative_points"])
     )
+    progression_df["race_label"] = progression_df["race_round"].apply(lambda round_number: f"Corrida {round_number}")
 
-    pivot_df = progression_df.pivot_table(
-        index="race_round",
-        columns=entity_column,
-        values="race_points",
-        aggfunc="sum",
-        fill_value=0,
-    ).sort_index()
-
-    cumulative_df = pivot_df.cumsum().reset_index()
-    cumulative_df = cumulative_df.melt(
-        id_vars="race_round",
-        var_name=entity_column,
-        value_name="cumulative_points",
-    )
-    cumulative_df = cumulative_df.merge(race_labels, left_on="race_round", right_index=True, how="left")
-    cumulative_df = cumulative_df.merge(
-        progression_df[["race_round", entity_column, "race_points"]],
-        on=["race_round", entity_column],
-        how="left",
-    )
-    cumulative_df["race_label"] = cumulative_df["race_round"].apply(lambda round_number: f"Corrida {round_number}")
-
-    return cumulative_df
+    return progression_df[["race_round", "race_label", "race_name", entity_column, "cumulative_points", "race_points"]]
 
 
 def get_driver_points_progression(year: int) -> pd.DataFrame:
@@ -882,13 +858,12 @@ def get_driver_points_progression(year: int) -> pd.DataFrame:
             r.round AS race_round,
             r.official_name AS race_name,
             d.full_name AS driver_name,
-            SUM(COALESCE(rr.points, 0)) AS race_points
-        FROM race_result rr
-        INNER JOIN race r ON rr.race_id = r.id
-        INNER JOIN driver d ON rr.driver_id = d.id
+            rs.points AS cumulative_points
+        FROM race_driver_standing rs
+        INNER JOIN race r ON rs.race_id = r.id
+        INNER JOIN driver d ON rs.driver_id = d.id
         WHERE r.year = ?
-        GROUP BY r.round, r.official_name, rr.driver_id, d.full_name
-        HAVING SUM(COALESCE(rr.points, 0)) > 0
+          AND rs.points > 0
         ORDER BY r.round, d.full_name
         """,
         (year,),
@@ -904,13 +879,12 @@ def get_constructor_points_progression(year: int) -> pd.DataFrame:
             r.round AS race_round,
             r.official_name AS race_name,
             c.name AS constructor_name,
-            SUM(COALESCE(rr.points, 0)) AS race_points
-        FROM race_result rr
-        INNER JOIN race r ON rr.race_id = r.id
-        INNER JOIN constructor c ON rr.constructor_id = c.id
+            rcs.points AS cumulative_points
+        FROM race_constructor_standing rcs
+        INNER JOIN race r ON rcs.race_id = r.id
+        INNER JOIN constructor c ON rcs.constructor_id = c.id
         WHERE r.year = ?
-        GROUP BY r.round, r.official_name, rr.constructor_id, c.name
-        HAVING SUM(COALESCE(rr.points, 0)) > 0
+          AND rcs.points > 0
         ORDER BY r.round, c.name
         """,
         (year,),
