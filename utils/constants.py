@@ -263,6 +263,9 @@ STATUS_TRADUCAO = {
     "DSQ": "Desclassificado (DSQ)",
     "EX": "Excluído (EX)",
     "NC": "Não classificado (NC)",
+    "Energy Recovery System": "Sistema de Recuperação de Energia",
+    "Safety switch": "Interruptor de segurança",
+    "Broken seat": "Assento quebrado",
 }
 
 COUNTRY_TRANSLATIONS = PAISES_TRADUCAO
