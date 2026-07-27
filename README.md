@@ -328,9 +328,7 @@ Algumas ideias para evolução do projeto:
 
 ## 👤 Autor
 
-Desenvolvido por **Diego Bernardo**.
-
-- GitHub: [@diegobrnrd](https://github.com/diegobrnrd)
+Desenvolvido por [**Diego Bernardo**](https://github.com/diegobrnrd).
 
 ---
 
