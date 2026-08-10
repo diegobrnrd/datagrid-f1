@@ -7,191 +7,191 @@
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Data Source](https://img.shields.io/badge/Data-F1DB-E10600)](https://github.com/f1db/f1db)
 
-**DataGrid F1** é uma aplicação interativa desenvolvida com **Streamlit** para explorar dados históricos da **Fórmula 1**. O app reúne dashboards, rankings, mapas, estatísticas de corridas, pilotos, construtoras, circuitos e campeonatos em uma experiência visual, rápida e organizada.
+**DataGrid F1** is an interactive application built with **Streamlit** to explore historical **Formula 1** data. The app brings together dashboards, rankings, maps, race statistics, drivers, constructors, circuits, and championships in a visual, fast, and organized experience.
 
-A proposta do projeto é transformar a base histórica da F1 em uma plataforma de análise acessível, com filtros intuitivos, visualizações interativas e páginas temáticas para diferentes formas de exploração dos dados.
+The goal of the project is to turn F1's historical database into an accessible analysis platform, with intuitive filters, interactive visualizations, and themed pages for different ways of exploring the data.
 
 ---
 
 ## 🔗 Deploy
 
-Acesse a aplicação publicada no Streamlit:
+Access the published application on Streamlit:
 
 👉 **[DataGrid F1 — Streamlit App](https://datagrid-f1-ir6anpvbyigxkktxwrgugq.streamlit.app/)**
 
 ---
 
-## 📌 Visão geral
+## 📌 Overview
 
-O app é dividido em páginas temáticas:
+The app is divided into themed pages:
 
-| Página | Objetivo |
+| Page | Purpose |
 |---|---|
-| 🏠 **Visão Global** | Apresentar um panorama histórico da F1 com KPIs e gráficos gerais. |
-| 🏁 **Corridas** | Explorar resultados oficiais, grid de largada e destaques de cada Grande Prêmio. |
-| 🧑‍🚀 **Pilotos** | Analisar estatísticas individuais, evolução de carreira e rankings históricos. |
-| 🏭 **Construtoras** | Comparar equipes, domínio histórico, pilotos mais relevantes e confiabilidade. |
-| 🗺️ **Circuitos** | Visualizar mapas, traçados, recordes por pista e impacto da posição de largada. |
-| 🏆 **Campeonatos** | Consultar classificações finais e evolução de pontos por temporada. |
+| 🏠 **Global Overview** | Present a historical overview of F1 with KPIs and general charts. |
+| 🏁 **Races** | Explore official results, starting grid, and highlights from each Grand Prix. |
+| 🧑‍🚀 **Drivers** | Analyze individual statistics, career progression, and historical rankings. |
+| 🏭 **Constructors** | Compare teams, historical dominance, top drivers, and reliability. |
+| 🗺️ **Circuits** | View maps, track layouts, per-track records, and the impact of grid position. |
+| 🏆 **Championships** | Check final standings and points progression by season. |
 
 ---
 
-## ✨ Funcionalidades principais
+## ✨ Main Features
 
-### 🏠 Dashboard global
+### 🏠 Global dashboard
 
-- KPIs com totais históricos de:
-  - pilotos cadastrados;
-  - construtoras/equipes;
-  - Grandes Prêmios;
-  - circuitos utilizados.
-- Evolução do calendário de corridas por temporada.
-- Ranking dos países que mais sediaram corridas.
-- Evolução do grid de largada ao longo das temporadas.
-- Ranking dos países de origem de pilotos.
-- Evolução da quantidade de construtoras ativas por temporada.
-- Ranking dos países de origem de construtoras.
+- KPIs with historical totals of:
+  - registered drivers;
+  - constructors/teams;
+  - Grands Prix;
+  - circuits used.
+- Race calendar evolution by season.
+- Ranking of countries that have hosted the most races.
+- Starting grid evolution over the seasons.
+- Ranking of drivers' countries of origin.
+- Evolution of the number of active constructors per season.
+- Ranking of constructors' countries of origin.
 
-### 🏁 Corridas
+### 🏁 Races
 
-- Filtros em cascata por **temporada** e **Grande Prêmio**.
-- Painel resumido da corrida selecionada:
-  - data;
-  - circuito;
-  - localização;
-  - voltas realizadas.
-- Tabela com resultado oficial:
-  - posição;
-  - piloto;
-  - equipe;
-  - voltas;
-  - tempo/gap;
-  - pontos;
-  - situação/status.
-- Aba dedicada ao **grid de largada**.
-- Insights automáticos da corrida:
+- Cascading filters by **season** and **Grand Prix**.
+- Summary panel for the selected race:
+  - date;
+  - circuit;
+  - location;
+  - laps completed.
+- Table with official results:
+  - position;
+  - driver;
+  - team;
+  - laps;
+  - time/gap;
+  - points;
+  - status.
+- Dedicated tab for the **starting grid**.
+- Automatic race insights:
   - pole position;
-  - vencedor;
-  - volta mais rápida;
+  - winner;
+  - fastest lap;
   - Hat Trick;
   - Grand Chelem.
-- Gráfico de confiabilidade com proporção de pilotos que concluíram a prova versus abandonos/não largadas.
-- Tabela com principais motivos de abandono quando aplicável.
+- Reliability chart showing the proportion of drivers who finished the race versus retirements/no-shows.
+- Table of main retirement reasons, when applicable.
 
-### 🧑‍🚀 Pilotos
+### 🧑‍🚀 Drivers
 
-A página de pilotos possui duas áreas principais: **Estatísticas Individuais** e **Estatísticas Gerais**.
+The drivers page has two main areas: **Individual Statistics** and **General Statistics**.
 
-#### Estatísticas Individuais
+#### Individual Statistics
 
-- Busca rápida por nome do piloto.
-- Cartão biográfico com nacionalidade, idade/ano de nascimento e número permanente quando disponível.
-- Métricas principais da carreira:
-  - títulos mundiais;
-  - vitórias;
-  - pódios;
+- Quick search by driver name.
+- Bio card with nationality, age/year of birth, and permanent number when available.
+- Main career metrics:
+  - world titles;
+  - wins;
+  - podiums;
   - poles;
-  - voltas mais rápidas;
+  - fastest laps;
   - Hat Tricks;
   - Grand Chelems.
-- Funil de conversão: **largadas → pódios → vitórias**.
-- Gráfico de vitórias por equipe.
-- Radar de desempenho com taxas percentuais de vitória, pódio e pole.
-- Evolução anual da carreira com gráficos acumulados e gráficos lollipop para:
-  - títulos;
-  - vitórias;
-  - pódios;
+- Conversion funnel: **starts → podiums → wins**.
+- Wins-by-team chart.
+- Performance radar with win, podium, and pole percentage rates.
+- Annual career evolution with cumulative charts and lollipop charts for:
+  - titles;
+  - wins;
+  - podiums;
   - poles;
-  - voltas mais rápidas;
+  - fastest laps;
   - Hat Tricks;
   - Grand Chelems.
 
-#### Estatísticas Gerais
+#### General Statistics
 
-- Tabelas de ranking histórico de pilotos para:
-  - campeonatos;
-  - vitórias;
-  - pódios;
+- Historical driver ranking tables for:
+  - championships;
+  - wins;
+  - podiums;
   - poles;
-  - voltas mais rápidas;
+  - fastest laps;
   - Hat Tricks;
   - Grand Chelems;
-  - largadas/corridas disputadas.
+  - starts/races contested.
 
-### 🏭 Construtoras
+### 🏭 Constructors
 
-- Ranking histórico global das equipes.
-- Indicadores por construtora:
-  - país de origem;
-  - títulos mundiais de construtores;
-  - títulos de pilotos;
-  - vitórias;
-  - pódios;
+- Global historical team ranking.
+- Indicators by constructor:
+  - country of origin;
+  - constructors' world titles;
+  - drivers' titles;
+  - wins;
+  - podiums;
   - poles.
-- Relatório detalhado por equipe selecionada.
-- Top 10 pilotos da equipe por:
-  - vitórias;
+- Detailed report for the selected team.
+- Top 10 drivers of the team by:
+  - wins;
   - poles;
-  - pódios;
-  - corridas disputadas.
-- Evolução temporal de:
-  - vitórias por temporada;
-  - poles por temporada;
-  - pódios por temporada;
-  - títulos mundiais de construtores;
-  - títulos mundiais de pilotos conquistados com a equipe.
-- Ranking dos principais motivos de abandono por equipe.
+  - podiums;
+  - races contested.
+- Time evolution of:
+  - wins per season;
+  - poles per season;
+  - podiums per season;
+  - constructors' world titles;
+  - drivers' world titles won with the team.
+- Ranking of main retirement reasons by team.
 
-### 🗺️ Circuitos
+### 🗺️ Circuits
 
-- Mapa interativo com circuitos da temporada atual.
-- Mapa global com todos os circuitos que já sediaram GPs oficiais.
-- Raio-X do circuito selecionado:
-  - localização;
-  - extensão;
-  - número de curvas;
-  - total de corridas realizadas.
-- Análise dos “reis da pista”:
-  - piloto com mais vitórias;
-  - equipe com mais vitórias;
-  - piloto/equipe com mais pódios;
-  - piloto/equipe com mais poles.
-- Gráfico mostrando a relação entre posição no grid e vitórias no circuito.
-- Cálculo do percentual de vitórias obtidas partindo da pole position.
-- Exibição de SVGs dos traçados dos circuitos, com variantes:
-  - preto;
-  - preto com contorno;
-  - branco;
-  - branco com contorno.
+- Interactive map with circuits from the current season.
+- Global map with all circuits that have hosted official GPs.
+- X-ray of the selected circuit:
+  - location;
+  - length;
+  - number of corners;
+  - total races held.
+- "Track kings" analysis:
+  - driver with the most wins;
+  - team with the most wins;
+  - driver/team with the most podiums;
+  - driver/team with the most poles.
+- Chart showing the relationship between grid position and wins at the circuit.
+- Calculation of the percentage of wins achieved starting from pole position.
+- Display of circuit layout SVGs, with variants:
+  - black;
+  - black with outline;
+  - white;
+  - white with outline.
 
-### 🏆 Campeonatos
+### 🏆 Championships
 
-- Seleção de temporada.
-- Destaque visual para campeão/líder do Mundial de Pilotos.
-- Destaque visual para campeã/líder do Mundial de Construtores.
-- Tratamento histórico para temporadas anteriores a 1958, período em que o campeonato de construtores ainda não existia.
-- Tabela de classificação de pilotos.
-- Tabela de classificação de construtoras.
-- Evolução acumulada de pontos corrida a corrida:
-  - pilotos;
-  - construtoras.
-
----
-
-## 🛠️ Tecnologias utilizadas
-
-- **Python** — linguagem principal do projeto.
-- **Streamlit** — construção da interface, páginas e deploy.
-- **Pandas** — manipulação, limpeza e transformação dos dados.
-- **Plotly Express / Graph Objects** — gráficos interativos.
-- **SQLite** — armazenamento local dos dados da Fórmula 1.
-- **F1DB** — fonte principal dos dados históricos.
+- Season selection.
+- Visual highlight for the Drivers' World Championship winner/leader.
+- Visual highlight for the Constructors' World Championship winner/leader.
+- Historical handling for seasons before 1958, when the constructors' championship did not yet exist.
+- Drivers' standings table.
+- Constructors' standings table.
+- Cumulative points evolution race by race:
+  - drivers;
+  - constructors.
 
 ---
 
-## 🧱 Estrutura do projeto
+## 🛠️ Technologies Used
 
-A estrutura principal esperada do projeto é:
+- **Python** — main project language.
+- **Streamlit** — interface, pages, and deployment.
+- **Pandas** — data manipulation, cleaning, and transformation.
+- **Plotly Express / Graph Objects** — interactive charts.
+- **SQLite** — local storage of Formula 1 data.
+- **F1DB** — main source of historical data.
+
+---
+
+## 🧱 Project Structure
+
+The project's main expected structure is:
 
 ```text
 .
@@ -221,64 +221,64 @@ A estrutura principal esperada do projeto é:
 └── LICENSE
 ```
 
-### Organização do código
+### Code organization
 
-- `🏠DataGrid_F1.py`: página inicial e dashboard global.
-- `pages/`: páginas temáticas da aplicação Streamlit.
-- `utils/db.py`: camada de acesso ao banco SQLite e consultas reutilizáveis.
-- `utils/constants.py`: traduções e constantes auxiliares.
-- `utils/circuit_assets.py`: localização e tratamento dos arquivos SVG dos circuitos.
-- `utils/ui.py`: componentes visuais compartilhados, como sidebar e rodapé.
-- `assets/circuits/`: imagens dos traçados dos circuitos.
-- `f1db.db`: banco de dados SQLite utilizado pela aplicação.
+- `🏠DataGrid_F1.py`: home page and global dashboard.
+- `pages/`: themed pages of the Streamlit application.
+- `utils/db.py`: SQLite database access layer and reusable queries.
+- `utils/constants.py`: translations and auxiliary constants.
+- `utils/circuit_assets.py`: location and handling of circuit SVG files.
+- `utils/ui.py`: shared visual components, such as sidebar and footer.
+- `assets/circuits/`: circuit layout images.
+- `f1db.db`: SQLite database used by the application.
 
 ---
 
-## 📦 Como executar localmente
+## 📦 How to Run Locally
 
-### 1. Clone o repositório
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/diegobrnrd/datagrid-f1.git
 cd datagrid-f1
 ```
 
-### 2. Crie e ative um ambiente virtual
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-No Windows:
+On Windows:
 
 ```bash
 .venv\Scripts\activate
 ```
 
-No macOS/Linux:
+On macOS/Linux:
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 3. Instale as dependências
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Verifique os arquivos necessários
+### 4. Check the required files
 
-Antes de iniciar o app, confirme que estes itens existem na raiz do projeto:
+Before starting the app, confirm that these items exist in the project root:
 
 ```text
 f1db.db
 assets/circuits/
 ```
 
-O banco `f1db.db` é necessário para as consultas da aplicação. A pasta `assets/circuits/` é utilizada para exibir os traçados dos circuitos.
+The `f1db.db` database is required for the application's queries. The `assets/circuits/` folder is used to display the circuit layouts.
 
-### 5. Execute a aplicação
+### 5. Run the application
 
 ```bash
 streamlit run 🏠DataGrid_F1.py
@@ -286,56 +286,56 @@ streamlit run 🏠DataGrid_F1.py
 
 ---
 
-## 🗃️ Fonte de dados
+## 🗃️ Data Source
 
-Este projeto utiliza dados históricos da Fórmula 1 a partir do projeto open-source **F1DB**.
+This project uses historical Formula 1 data from the open-source **F1DB** project.
 
-- Repositório da fonte de dados: [f1db/f1db](https://github.com/f1db/f1db)
-- Licença dos dados: **CC BY 4.0**
+- Data source repository: [f1db/f1db](https://github.com/f1db/f1db)
+- Data license: **CC BY 4.0**
 
-> O app exibe os créditos do F1DB na barra lateral, mantendo a atribuição da fonte de dados.
-
----
-
-## 🎨 Interface e experiência
-
-A aplicação foi desenhada com foco em:
-
-- navegação simples por páginas;
-- visualizações em tela ampla;
-- gráficos interativos;
-- métricas de leitura rápida;
-- textos e labels em português;
-- tratamento de dados ausentes;
-- tradução de países e status de corrida;
-- análise visual consistente com a identidade da Fórmula 1.
+> The app displays F1DB credits in the sidebar, maintaining attribution of the data source.
 
 ---
 
-## 🚧 Possíveis melhorias futuras
+## 🎨 Interface and Experience
 
-Algumas ideias para evolução do projeto:
+The application was designed with a focus on:
 
-- adicionar filtros comparativos entre pilotos;
-- incluir comparação direta entre construtoras;
-- permitir exportação de tabelas em CSV;
-- adicionar testes automatizados para as consultas SQL;
-- criar página de metodologia dos dados;
-- incluir cards com recordes históricos gerais;
-- adicionar opção de tema claro/escuro personalizada no app.
-
----
-
-## 👤 Autor
-
-Desenvolvido por [**Diego Bernardo**](https://github.com/diegobrnrd).
+- simple page navigation;
+- wide-screen visualizations;
+- interactive charts;
+- quick-read metrics;
+- text and labels in Portuguese;
+- handling of missing data;
+- translation of countries and race status;
+- visual analysis consistent with the Formula 1 identity.
 
 ---
 
-## 📄 Licença
+## 🚧 Possible Future Improvements
 
-Este projeto está licenciado sob a **Apache License 2.0**.
+Some ideas for the project's evolution:
 
-Consulte o arquivo [`LICENSE`](LICENSE) para mais detalhes.
+- add comparative filters between drivers;
+- include direct comparison between constructors;
+- allow table export to CSV;
+- add automated tests for SQL queries;
+- create a data methodology page;
+- include cards with overall historical records;
+- add a custom light/dark theme option in the app.
 
-> Observação: os dados utilizados pelo projeto seguem a licença da fonte original, **F1DB — CC BY 4.0**.
+---
+
+## 👤 Author
+
+Developed by [**Diego Bernardo**](https://github.com/diegobrnrd).
+
+---
+
+## 📄 License
+
+This project is licensed under the **Apache License 2.0**.
+
+See the [`LICENSE`](LICENSE) file for more details.
+
+> Note: the data used by the project follows the license of the original source, **F1DB — CC BY 4.0**.
