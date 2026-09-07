@@ -63,7 +63,7 @@ def render_map(df: pd.DataFrame, key: str) -> None:
         zoom=1.2,
         height=450,
     )
-    fig.update_layout(mapbox_style="carto-darkmatter", margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.update_layout(map_style="carto-darkmatter", margin={"r": 0, "t": 0, "l": 0, "b": 0})
     plotly_chart(fig, key=key)
 
 
