@@ -160,13 +160,14 @@ def render_progression_chart(
 ) -> None:
     """Renderiza gráfico de pontos acumulados corrida a corrida."""
     race_order = progression_df.sort_values("race_round")["race_label"].drop_duplicates().tolist()
+    singular_label = "Piloto" if entity_column == "driver_name" else "Construtora"
     fig = px.line(
         progression_df,
         x="race_label",
         y="cumulative_points",
         color=entity_column,
         markers=True,
-        custom_data=["race_name", "race_points"],
+        custom_data=[entity_column, "race_name", "race_points"],
         labels={
             "race_label": "Corrida",
             "cumulative_points": "Pontos acumulados",
@@ -179,10 +180,11 @@ def render_progression_chart(
     )
     fig.update_traces(
         hovertemplate=(
+            f"{singular_label}: <b>%{{customdata[0]}}</b><br>"
             "Corrida: %{x}<br>"
-            "Grande Prêmio: %{customdata[0]}<br>"
+            "Grande Prêmio: %{customdata[1]}<br>"
             "Pontos acumulados: %{y:.1f}<br>"
-            "Pontos na corrida: %{customdata[1]:.1f}<extra></extra>"
+            "Pontos na corrida: %{customdata[2]:.1f}<extra></extra>"
         )
     )
     apply_common_chart_layout(fig, margin_top=20)
