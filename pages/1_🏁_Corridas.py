@@ -7,7 +7,7 @@ import plotly.express as px
 import streamlit as st
 
 from utils.constants import DID_NOT_START_STATUSES, FINISHED_STATUS, STATUS_TRADUCAO
-from utils.db import get_race_results, get_races_by_season, get_seasons
+from utils.db import get_race_results, get_race_session_results, get_races_by_season, get_seasons
 from utils.ui import add_vertical_space, apply_common_chart_layout, plotly_chart, render_footer, render_header, setup_page
 
 
@@ -27,6 +27,11 @@ def load_races(year: int) -> pd.DataFrame:
 @st.cache_data(show_spinner=False)
 def load_results(race_id: int) -> pd.DataFrame:
     return get_race_results(race_id)
+
+
+@st.cache_data(show_spinner=False)
+def load_session_results(race_id: int, session_type: str) -> pd.DataFrame:
+    return get_race_session_results(race_id, session_type)
 
 
 def prepare_results(results: pd.DataFrame) -> pd.DataFrame:
@@ -103,13 +108,68 @@ def render_grid_tab(results: pd.DataFrame) -> None:
     grid_df = grid_df.sort_values("grid_num")
 
     st.dataframe(
-        grid_df[["grid", "driver_name", "constructor_name"]],
+        grid_df[["grid", "driver_name", "constructor_name", "best_time", "gap"]],
         width="stretch",
         hide_index=True,
         column_config={
             "grid": st.column_config.TextColumn("Posição no Grid", width="small"),
             "driver_name": "Piloto",
             "constructor_name": "Equipe",
+            "best_time": "Melhor tempo",
+            "gap": "Diferença",
+        },
+    )
+
+
+def render_practice_tab(practice_results: dict[str, pd.DataFrame]) -> None:
+    for title, results in practice_results.items():
+        st.subheader(title)
+        st.dataframe(
+            results[["position", "driver_name", "constructor_name", "time", "gap", "laps"]],
+            width="stretch",
+            hide_index=True,
+            column_config={
+                "position": st.column_config.TextColumn("Posição", width="small"),
+                "driver_name": "Piloto",
+                "constructor_name": "Equipe",
+                "time": "Melhor tempo",
+                "gap": "Diferença",
+                "laps": st.column_config.NumberColumn("Voltas", width="small"),
+            },
+        )
+
+
+def render_sprint_results_tab(results: pd.DataFrame) -> None:
+    prepared = results.copy()
+    prepared["time"] = prepared["time"].fillna("---")
+    prepared["points"] = prepared["points"].fillna(0).astype(float)
+    st.dataframe(
+        prepared[["position", "driver_name", "constructor_name", "laps", "time", "gap", "points"]],
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "position": st.column_config.TextColumn("Posição", width="small"),
+            "driver_name": "Piloto",
+            "constructor_name": "Equipe",
+            "laps": st.column_config.NumberColumn("Voltas", width="small"),
+            "time": "Tempo",
+            "gap": "Gap",
+            "points": st.column_config.NumberColumn("Pontos", format="%.1f"),
+        },
+    )
+
+
+def render_sprint_grid_tab(results: pd.DataFrame) -> None:
+    st.dataframe(
+        results[["position", "driver_name", "constructor_name", "best_time", "gap"]],
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "position": st.column_config.TextColumn("Posição no Grid", width="small"),
+            "driver_name": "Piloto",
+            "constructor_name": "Equipe",
+            "best_time": "Melhor tempo",
+            "gap": "Diferença",
         },
     )
 
@@ -139,10 +199,12 @@ def render_race_highlights(results: pd.DataFrame) -> None:
 
     pole_name = pole_row.iloc[0]["driver_name"] if not pole_row.empty else "Desconhecido"
     fastest_name = fastest_row.iloc[0]["driver_name"] if not fastest_row.empty else "Desconhecido"
+    fastest_time = fastest_row.iloc[0]["fastest_lap_time"] if not fastest_row.empty else None
+    fastest_time = fastest_time or "Tempo indisponível"
 
     st.success(f"**Pole Position:**\n\n🥇 {pole_name}")
     st.success(f"**Vencedor:**\n\n🏆 {winner_row['driver_name']}\n\n{winner_row['constructor_name']}")
-    st.success(f"**Volta Mais Rápida:**\n\n⏱️ {fastest_name}")
+    st.success(f"**Volta Mais Rápida:**\n\n⏱️ {fastest_name}\n\n{fastest_time}")
 
     if not hat_trick_row.empty:
         st.success(f"**Hat Trick:**\n\n✨ {hat_trick_row.iloc[0]['driver_name']}\n\nPole + volta mais rápida + vitória")
@@ -217,11 +279,56 @@ def main() -> None:
         st.stop()
 
     results = prepare_results(results)
-    tab_results, tab_grid, tab_insights = st.tabs(["🏎️ Resultado Oficial", "🚦 Grid de Largada", "📊 Insights da Corrida"])
+    practice_results = {
+        title: load_session_results(race_id, session_type)
+        for session_type, title in (
+            ("free_practice_1", "Treino Livre 1"),
+            ("free_practice_2", "Treino Livre 2"),
+            ("free_practice_3", "Treino Livre 3"),
+            ("free_practice_4", "Treino Livre 4"),
+        )
+    }
+    practice_results = {title: data for title, data in practice_results.items() if not data.empty}
+    sprint_results = load_session_results(race_id, "sprint")
+    sprint_grid = load_session_results(race_id, "sprint_grid")
+
+    tab_names = ["🏎️ Resultado Oficial", "🚦 Grid de Largada"]
+    if not sprint_results.empty:
+        tab_names.append("⚡ Corrida Sprint")
+    if not sprint_grid.empty:
+        tab_names.append("🚦 Grid da Sprint")
+    if practice_results:
+        tab_names.append("🔧 Treinos Livres")
+    tab_names.append("📊 Insights da Corrida")
+    tabs = st.tabs(tab_names)
+    tab_index = 0
+    tab_results = tabs[tab_index]
+    tab_index += 1
+    tab_grid = tabs[tab_index]
+    tab_index += 1
+    tab_sprint = tabs[tab_index] if not sprint_results.empty else None
+    if not sprint_results.empty:
+        tab_index += 1
+    tab_sprint_grid = tabs[tab_index] if not sprint_grid.empty else None
+    if not sprint_grid.empty:
+        tab_index += 1
+    tab_practice = tabs[tab_index] if practice_results else None
+    if practice_results:
+        tab_index += 1
+    tab_insights = tabs[tab_index]
     with tab_results:
         render_results_tab(results)
     with tab_grid:
         render_grid_tab(results)
+    if tab_practice is not None:
+        with tab_practice:
+            render_practice_tab(practice_results)
+    if tab_sprint is not None:
+        with tab_sprint:
+            render_sprint_results_tab(sprint_results)
+    if tab_sprint_grid is not None:
+        with tab_sprint_grid:
+            render_sprint_grid_tab(sprint_grid)
     with tab_insights:
         render_insights_tab(results)
 

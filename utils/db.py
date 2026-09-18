@@ -234,6 +234,14 @@ def get_race_results(race_id: int) -> pd.DataFrame:
             rr.grid_position_number,
             d.full_name AS driver_name,
             c.name AS constructor_name,
+            COALESCE(
+                qualifying.qualifying_q3,
+                qualifying.qualifying_q2,
+                qualifying.qualifying_q1,
+                qualifying.qualifying_time
+            ) AS best_time,
+            qualifying.qualifying_gap AS gap,
+            fastest_lap_data.fastest_lap_time,
             rr.laps,
             rr.time,
             COALESCE(
@@ -251,10 +259,95 @@ def get_race_results(race_id: int) -> pd.DataFrame:
         FROM race_result rr
         LEFT JOIN driver d ON rr.driver_id = d.id
         LEFT JOIN constructor c ON rr.constructor_id = c.id
+        LEFT JOIN race_data qualifying
+            ON qualifying.race_id = rr.race_id
+           AND qualifying.driver_id = rr.driver_id
+           AND qualifying.type = 'QUALIFYING_RESULT'
+        LEFT JOIN race_data fastest_lap_data
+            ON fastest_lap_data.race_id = rr.race_id
+           AND fastest_lap_data.driver_id = rr.driver_id
+           AND fastest_lap_data.type = 'FASTEST_LAP'
         WHERE rr.race_id = ?
         ORDER BY rr.position_display_order
         """,
         (race_id,),
+    )
+
+
+_RACE_SESSION_TYPES = {
+    "free_practice_1": "FREE_PRACTICE_1_RESULT",
+    "free_practice_2": "FREE_PRACTICE_2_RESULT",
+    "free_practice_3": "FREE_PRACTICE_3_RESULT",
+    "free_practice_4": "FREE_PRACTICE_4_RESULT",
+    "sprint": "SPRINT_RACE_RESULT",
+    "sprint_grid": "SPRINT_STARTING_GRID_POSITION",
+}
+
+
+def get_race_session_results(race_id: int, session_type: str) -> pd.DataFrame:
+    """Retorna os dados de uma sessão extra do fim de semana."""
+    if session_type not in _RACE_SESSION_TYPES:
+        raise ValueError(f"Tipo de sessão inválido: {session_type}")
+
+    data_type = _RACE_SESSION_TYPES[session_type]
+    if session_type.startswith("free_practice"):
+        return execute_query(
+            """
+            SELECT
+                rd.position_text AS position,
+                d.full_name AS driver_name,
+                c.name AS constructor_name,
+                rd.practice_time AS time,
+                rd.practice_gap AS gap,
+                rd.practice_laps AS laps
+            FROM race_data rd
+            LEFT JOIN driver d ON rd.driver_id = d.id
+            LEFT JOIN constructor c ON rd.constructor_id = c.id
+            WHERE rd.race_id = ? AND rd.type = ?
+            ORDER BY rd.position_display_order
+            """,
+            (race_id, data_type),
+        )
+
+    if session_type == "sprint_grid":
+        return execute_query(
+            """
+            SELECT
+                rd.position_text AS position,
+                d.full_name AS driver_name,
+                c.name AS constructor_name
+                ,rd.starting_grid_position_time AS best_time
+                ,sprint_qualifying.qualifying_gap AS gap
+            FROM race_data rd
+            LEFT JOIN driver d ON rd.driver_id = d.id
+            LEFT JOIN constructor c ON rd.constructor_id = c.id
+            LEFT JOIN race_data sprint_qualifying
+                ON sprint_qualifying.race_id = rd.race_id
+               AND sprint_qualifying.driver_id = rd.driver_id
+               AND sprint_qualifying.type = 'SPRINT_QUALIFYING_RESULT'
+            WHERE rd.race_id = ? AND rd.type = ?
+            ORDER BY rd.position_display_order
+            """,
+            (race_id, data_type),
+        )
+
+    return execute_query(
+        """
+        SELECT
+            rd.position_text AS position,
+            d.full_name AS driver_name,
+            c.name AS constructor_name,
+            rd.race_laps AS laps,
+            rd.race_time AS time,
+            rd.race_gap AS gap,
+            rd.race_points AS points
+        FROM race_data rd
+        LEFT JOIN driver d ON rd.driver_id = d.id
+        LEFT JOIN constructor c ON rd.constructor_id = c.id
+        WHERE rd.race_id = ? AND rd.type = ?
+        ORDER BY rd.position_display_order
+        """,
+        (race_id, data_type),
     )
 
 
