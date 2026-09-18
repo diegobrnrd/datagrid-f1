@@ -28,7 +28,7 @@ The app is divided into themed pages:
 | Page | Purpose |
 |---|---|
 | 🏠 **Global Overview** | Present a historical overview of F1 with KPIs and general charts. |
-| 🏁 **Races** | Explore official results, starting grid, and highlights from each Grand Prix. |
+| 🏁 **Races** | Explore official results, free practice sessions, sprint races, starting grids, and highlights from each Grand Prix. |
 | 🧑‍🚀 **Drivers** | Analyze individual statistics, career progression, and historical rankings. |
 | 🏭 **Constructors** | Compare teams, historical dominance, top drivers, and reliability. |
 | 🗺️ **Circuits** | View maps, track layouts, per-track records, and the impact of grid position. |
@@ -60,7 +60,14 @@ The app is divided into themed pages:
   - circuit;
   - location;
   - laps completed.
-- Table with official results:
+- Session tabs displayed according to the data available for each Grand Prix, in this order:
+  - **Official Result**;
+  - **Starting Grid**;
+  - **Sprint Race**;
+  - **Sprint Grid**;
+  - **Free Practice**;
+  - **Race Insights**.
+- Official result table with:
   - position;
   - driver;
   - team;
@@ -68,11 +75,18 @@ The app is divided into themed pages:
   - time/gap;
   - points;
   - status.
-- Dedicated tab for the **starting grid**.
+- Starting grid tables with:
+  - grid position;
+  - driver;
+  - team;
+  - best qualifying time;
+  - qualifying gap.
+- Free practice tables with the best time, gap, and completed laps.
+- Sprint race results and sprint starting grid when available.
 - Automatic race insights:
   - pole position;
   - winner;
-  - fastest lap;
+  - fastest lap and its time;
   - Hat Trick;
   - Grand Chelem.
 - Reliability chart showing the proportion of drivers who finished the race versus retirements/no-shows.
