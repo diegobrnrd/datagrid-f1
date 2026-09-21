@@ -76,11 +76,19 @@ def count_rows(table_name: str) -> int:
 
 
 def get_dashboard_counts() -> dict[str, int]:
-    """Retorna os KPIs globais usados no dashboard inicial."""
+    """Retorna os KPIs globais considerando apenas corridas realizadas."""
+    races_df = execute_query(
+        """
+        SELECT COUNT(id) AS total
+        FROM race
+        WHERE date(race.date) <= date('now')
+        """
+    )
+
     return {
         "drivers": count_rows("driver"),
         "constructors": count_rows("constructor"),
-        "races": count_rows("race"),
+        "races": int(races_df.iloc[0]["total"] or 0),
         "circuits": count_rows("circuit"),
     }
 
